@@ -15,10 +15,10 @@ Ligand concentrations, such as internal or external pH and [Cl<sup>-</sup>], sho
 
 ## Installation
 
-We provide an [environment.yml](./environment.yml) file defining for a conda environment with all the libraries required by the script.
+We provide environment files for win-64, linux-64, and osx-arm64 platforms defining a conda environment with all the libraries required by the script.
 
 * Download and install, following the instructions,  [conda](https://docs.anaconda.com/miniconda/) (we recommend miniconda).
-* Create the environment through the following instruction: `conda env create -f environment.yml --name vglut`
+* Create the environment through the following instruction (replace <your platform> with win-64, linux-64, or osx-arm64): `conda env create -f environment-<your platform>.yml --name vglut`
 * Activate the environment `conda activate vglut`
 
 ## Code usage

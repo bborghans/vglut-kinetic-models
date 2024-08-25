@@ -1,4 +1,4 @@
-name: vglut_km
+name: vglut
 channels:
   - conda-forge
   - defaults
