@@ -111,7 +111,7 @@ All diagonal indices, i.e. index [A, A], represent the sum of outward (negative)
 # citation
 
 If you make use of this data, please cite the corresponding paper.  
-https://www.biorxiv.org/content/10.1101/2024.09.06.609381v1 (preprint version)
+https://www.biorxiv.org/content/10.1101/2024.09.06.609381 (preprint version)
 
 ```
 @Article{,
