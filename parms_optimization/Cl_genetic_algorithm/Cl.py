@@ -241,40 +241,11 @@ if __name__ == '__main__':######################################################
             print(f'No file found with ID {version}, starting from parameters in start0.')
             start = start0
 
-        "optimized parameter sets, can be used to overwrite starting points"
-        WTstart    = np.loadtxt('WTstart_example.txt')
-        H120Astart = np.loadtxt('H120Astart_example.txt')
-        WT_sim_fit = np.loadtxt('WT_sim_fit_example.txt')
-        # start = [WTstart, H120Astart, WT_sim_fit][2]
-
         noVdep=sig0=None; model, Cldep, Hdep, sig0, noVdep, flux, closingstates=modelselect(start, model)
         # sig0+=list(range(16)) # place to add extra variables that need to be kept the same
 
-        #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        A="\n".join(["0\tx" for _ in range(11)])
-        A="""
-        23438760.735646706	WTintCl140Cl_pH55leaksubtract
-        2732377.3847712763	WTintCl140Cl_pH55Vdeact
-        1276231.3700885102	WTintCl_180Cl_pH50
-        20830445.393335186	WTintCl_180Cl_pH65
-        2479879.715790063	WTintClpH5_40ClApp
-        22589232.13582605	WTintClpH5_140ClApp
-        608060.9929432273	WTintCl140Cl_pH55App
-        7297929.622900769	WTintCl0Cl_pH5App
-        233930.43700620532	WTintCl0Cl_pHdep_50
-        743262.5443987548	WTintCl0Cl_pHdep_55*
-        24599309.39466366	WTintCl_0Cl_pH55Vdeact_short
-        """
-        B=[x for x in A.rstrip().split("\n") if x]#[x for x in A.split("\n") if x] # RSS value for each experiment, capped at *worsenfactor if >0
-        #B=[B[x] for x in [0,1,5,6,7,8,10]]
-        errs=[eval(er.split("\t")[0]) for er in B]
-        worsenfactor=1.3*0
-
-        #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        cl=1
-        if cl==0:
-            datasets=datasets[10:]
-
+        errs = np.inf
+        worsenfactor=0 #Same weight growth for all parameters
         limsmin=[0, 0, -chargelim, 0]*int(len(start)/4)
         limsmax=[slowlim, slowlim, chargelim, 1]*int(len(start)/4)
         for f in Cldep+Hdep: # increased upper limit for (not just small?)  ion binding
