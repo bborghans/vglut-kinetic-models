@@ -2,6 +2,7 @@
 
 We provide kinetic models, including ensembles of parameters optimised against electrophysiological recordings, to simulate various functions of WT and H120A VGLUT1 membrane proteins as described in our publication. Time courses of VGLUT1 Cl<sup>-</sup> channel open probabilities are simulated for the WT and H120A mutant protein, via a channel function. Secondary-active glutamate or aspartate transport current is simulated as the charge flux between states based on transport cycles.
 
+The `scripts` folder contains the code used for our analysis for reproducibility.
 
 ## Inputs
 
