@@ -8,7 +8,7 @@ The script optimizes model parameters for the specified protein version using re
 If the script is restarted, it will overwrite the output file at the first checkpoint, using the most recent parameter set from the previous run.
 #### Inputs
 - Time course data are loaded from: `Cl_WT_measurements.py` and `Cl_H120A_measurements.py`
-    The following experimental conditions are used for the data recording:
+    The following experimental conditions for the Wild type (WT) construct are used for the recordings:
     ```
     WTintCl140Cl_pH55leaksubtract
     WTintCl140Cl_pH55Vdeactu
