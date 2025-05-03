@@ -1,10 +1,8 @@
 import numpy as np
 from scipy.integrate import odeint
-import matplotlib.pyplot as plt
 from os import path
 # import scipy; from scipy import *; from pylab import *; import math; from scipy.optimize import curve_fit; from scipy.optimize import minimize; from random import *; import os.path; import time
 
-colors=plt.rcParams['axes.prop_cycle'].by_key()['color']
 elec=1.602176565e-7#Elementarladung in pC
 R=8.3144621#Gaskonstante J/(mol*1Kelvin):
 T=273.15+22#Temperatur (22C in Kelvin)
@@ -355,95 +353,6 @@ def altCltransitionmatrix(k11,k12,z1,d1,k21,k22,z2,d2,k31,k32,z3,d3,k41,k42,z4,d
     return A
 ##################################################################################################################################################################################################################################################################################################
 
-def plotstates2(y, freq, states, tsteps, experiment="", svg_or_png=1, label=0):
-    rainbow=plt.get_cmap('gist_rainbow')
-    if freq>50:
-        freq/=1000
-    steps=int(len(tsteps)/2-1)
-    time=[np.arange(tsteps[[1 if x>0 else 0][0]+2*x], tsteps[2+2*x])/freq for x in range(steps)]
-    fig,ax = plt.subplots(1, 1, figsize=(3.5*(steps),4))#, sharey=True
-    for n,state in enumerate(states):
-        for step in range(steps):
-            ax.plot(time[step], y[step][:,n], label=state.replace("2", "$_2$")*(step==0), c=rainbow(1/(len(states)-1)*n))
-    plt.yscale("log")
-    low=ax.get_ylim()[0]
-    plt.ylim(max(low,1e-9),1)
-    plt.xlim(tsteps[0]/freq,tsteps[-2]/freq)
-    plt.xlabel("Time (ms)")
-    plt.ylabel("Relative state distribution")
-    plt.legend(loc='center left', bbox_to_anchor=(1, .5))
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
-    if label!=0:
-        plt.title(experiment)
-    for l in [tsteps[[-4,-6][x]]/freq for x in range(len(tsteps)//2-2)]:
-        plt.axvline(l, lw=.5, ls="--", color="0.5", zorder=0)
-    plt.savefig(f"{savedir}{experiment}_states.{['svg','png'][svg_or_png]}",bbox_inches='tight')
-    plt.show()
-    #plotstates2([sim0,sim1,sim2],states,tsteps,experiment,svg_or_png,label=1)
-
-def fluxstates2(A0, y0, freq, states, tsteps, flux, experiment="", svg_or_png=1, label=0, full=0):
-    rainbow=plt.get_cmap('gist_rainbow')
-    if full==0:
-        flux=[i for i in flux if i[0].replace("apo","c").count("o")==1 and i[0].replace("apo","c").count("o")==1]
-    if freq>100:
-        freq/=1000
-    steps=int(len(tsteps)/2-1)
-    time=[np.arange(tsteps[[1 if x>0 else 0][0]+2*x], tsteps[2+2*x])/freq for x in range(steps)]
-    fig,ax = plt.subplots(1, 1, figsize=(3.5*(steps),4))
-    for n,interaction in enumerate(flux):#=IND_SIZE/4
-        name1,name2=interaction[2].split("-")
-        rates="k01,k10,z1,d1,k02,k20,z2,d2,k03,k30,z3,d3,k04,k40,z4,d4,k05,k50,z5,d5,k06,k60,z6,d6,k07,k70,z7,d7,k08,k80,z8,d8,k09,k90,z9,d9,k0a,ka0,za,da,k0b,kb0,zb,db,k0c,kc0,zc,dc,k0d,kd0,zd,dd,k0e,ke0,ze,de,k0f,kf0,zf,df,k0g,kg0,zg,dg,k0h,kh0,zh,dh,k0i,ki0,zi,di,k0j,kj0,zj,dj,k0k,kk0,zk,dk".split(",")
-        names_Cl="cp1, cdp1, z_cp1, d_cp1, to(H), tc(H), z_to(H), d_to(H), op1, odp1, z_op1, d_op1, to, tc, z_to, d_to, cp2, cdp2, z_cp2, d_cp2, to(H2), tc(H2), z_to(H2), d_to(H2), op2, odp2, z_op2, d_op2, cc, cdc, z_cc, d_cc, cp1(Cl), cdp1(Cl), z_cp1(Cl), d_cp1(Cl), cc(H), cdc(H), z_cc(H), d_cc(H), cc(H2), cdc(H2), z_cc(H2), d_cc(H2), cp2(Cl), cdp2(Cl), z_cp2(Cl), d_cp2(Cl), oc, odc, z_oc, d_oc, op1(Cl), odp1(Cl), z_op1(Cl), d_op1(Cl), oc(H), odc(H), z_oc(H), d_oc(H), op2(Cl), odp2(Cl), z_op2(Cl), d_op2(Cl), oc(H2), odc(H2), z_oc(H2), d_oc(H2), to(Cl), tc(Cl), z_to(Cl), d_to(Cl), to(ClH), tc(ClH), z_to(ClH), d_to(ClH), to(ClH2), tc(ClH2), z_to(ClH2), d_to(ClH2)".split(", ")
-        name="-".join([names_Cl[rates.index(x.replace("*Hex","").replace("*Clex",""))] for x in (name1,name2)])
-
-        idx=[int(i) for i in interaction[1]]
-        for step in range(steps):
-            forth=A0[step][idx[0],idx[1]]*y0[step][:,states.index(interaction[0].split(" ")[1])]
-            back=A0[step][idx[1],idx[0]]*y0[step][:,states.index(interaction[0].split(" ")[0])]
-            ax.plot(time[step], forth-back, label=name.replace("2", "$_2$")*(step==0), c=rainbow(1/(len(flux)-1)*n))
-    plt.axhline(0,c="k",linewidth=.5)
-    plt.yscale("symlog")#sym#plt.ylim(-1e0, None)
-    plt.xlim(tsteps[0]/freq,tsteps[-2]/freq)
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
-    if label!=0:
-        plt.title(experiment)#plt.legend(loc="upper right")
-    plt.legend(loc='center left', bbox_to_anchor=(1, .5))
-    for l in [tsteps[[-4,-6][x]]/freq for x in range(int(len(tsteps)/2-2))]:
-        plt.axvline(l, lw=.5, ls="--", color="0.5", zorder=0)
-    plt.savefig(f"{savedir}{experiment}_flux.{['svg','png'][svg_or_png]}",bbox_inches='tight')
-    plt.show()
-
-def paramplot(start, model, Cldep, Hdep, liganddep=[], variables=[]):
-    #from modelling.GlutWTmodels import startcalc
-    start=startcalc(start,model)
-    fig,ax=plt.subplots(figsize=(8,4))
-    for i in range(len(start)):
-        c=c_default="k"
-        c_Cl="g"
-        c_H="r"
-        c_ligand="y"
-        if i in np.array(Cldep): c=c_Cl
-        if i in np.array(Hdep): c=c_H
-        if i in liganddep: c=c_ligand
-        ax.plot(i, start[i],'o',c=c)
-    for i in np.arange(4, len(start), 4)-.5:
-        plt.axvline(i,c="grey")
-    ax.set_xticks([x*4+1.5 for x in range(len(start)//4)])
-    if variables and len(variables)==len(start):
-        ax.set_xticklabels(variables[::4]) # selects every 4th label if nr labels = nr of datapoints
-    elif variables and len(variables)*4==len(start):
-        ax.set_xticklabels(variables) # also works with 1 label for each set of 4 datapoints
-    else:
-        ax.set_xticklabels(range(len(start)//4)) # else assigns pythonic numbering to datapoints
-    ax.set_title(f'rate constants: Cl- ("{c_Cl}"), H ("{c_H}")'+((', ligand ("'+c_ligand+'")') if liganddep else "")+f', other ("{c_default}")')
-    ax.set_yscale("symlog")
-    ax.set_ylim(min(start)-abs(min(start)),max(start)*1.5)
-    ax.set_xlim(-1.5, len(start)+.5)
-    plt.savefig("paramplot.png")
-    plt.show()
-
 def formatstart(start, model, variables=[]):
     start=startcalc(start,model)
     row=""
@@ -536,61 +445,3 @@ def loaddata(protein="WT"):
     else:
         print("Can only load proteins WT and H120A")
 
-################################################################################################################################################
-
-def toplegend2(data, Vs, tsteps, conds0=None, conds1=None, col_base_con0_con2="krg", shifts=[0,0,0,0,0,0,0], internally_plot_b=[True, False, None][1],
-                plotsizeratio=[1, 5], plotsize=[6, 4], monoheightscalar=8, fontfam="Arial", fontsize=14, lw=1, experiment="", all_Cl_is_green_base=1):
-    """Plots V step legend based on Vs for patch data. <Tsteps> is datapoint index of each change to different condition, typically 8 for 2-step fast application.
-    <Conds0>/<conds1> np.expect [pHext,pHint,Clext,Clint], conds0[-1] is holding-V at start and end. <Vs> accepts secondary V (e.g. V-deactivation) as [[V], [Vs]].
-    Optional: <shifts> allows segment time adjustment. Can np.export fig with <internally_plot_b> of data if True, pass empty with False, or skip with None.
-    Height from /<monoheightscalar> if None, otherwise <plotsizeratio>. Offers choice in <lw> & <plotsize>, and <fontsize> & <fontfam> of later legends/scalebars.
-    Recognises deactivation if 'deact' in <experiment> which can be passed as basis for additional modifications. Default <all_Cl_is_green_base> from conds[2] is on."""
-    from scalebars import add_scalebar
-    plt.rc('font', **{"family" : fontfam, 'size' : fontsize})
-    if internally_plot_b==None:
-        fig, a = plt.subplots(1,1, figsize=(plotsize[0],plotsize[1]/monoheightscalar)); b=None
-    else:
-        fig, (a, b) = plt.subplots(2,1,  figsize=([*plotsize]), gridspec_kw={'height_ratios': [*plotsizeratio]}, sharex=False)
-    plt.subplots_adjust(hspace=0.01)
-
-    base,con0,con2=col_base_con0_con2
-    if conds0[2]!=0 and all_Cl_is_green_base==1:
-        if not conds1: base="g"
-        elif conds1[2]!=0: base="g"
-    c=np.array(list(base*6)) # standard colour = list of first entry in col_base_con0_con2
-    if None not in (conds0,conds1):
-        if conds0[0]>conds1[0]: c[3]=con0           #[H] increases after start
-        if conds0[0]<conds1[0]: c[[0,1,2,4,5]]=con0 #[H] decreases after start
-        if conds0[2]<conds1[2]: c[3]=con2           #[Cl] increases after start
-        if conds0[2]>conds1[2]: c[[0,1,2,4,5]]=con2 #[Cl] decreases after start
-
-    s0,s1,s2,s3,s4,s5,s6=shifts # shifts in timing
-    steps=range(1,len(tsteps)-2)
-    a.plot([0+s0, tsteps[1]+s1], [conds0[-1],conds0[-1]], c=c[0], lw=lw) # starting V
-    x0=[tsteps[1]+s1, tsteps[1]+s1]
-    y0=[conds0[-1],   min(list(Vs[-1])+list(Vs[0]))]
-    a.plot(x0, y0, c=c[0], lw=lw)
-
-    for step in steps:
-        t0,tEnd = tsteps[step]+shifts[step], tsteps[step+1]+shifts[step] # internal V & [x] changes
-        if "deact" in experiment and step==1:
-            a.plot([t0,tEnd],  [Vs[0],Vs[0]],            c=c[step], lw=lw)
-            a.plot([tEnd,tEnd],[min(Vs[0]),max(Vs[-1])], c=c[step], lw=lw)
-        else:
-            for V in Vs[-1]:
-                a.plot([t0,tEnd], [V,V], c=c[step], lw=lw)
-
-    a.plot([tsteps[-2]+s5, tsteps[-1]+s6], [conds0[-1],conds0[-1]], c=c[2], lw=lw) # ending V
-    x1=[tsteps[-2]+s5, tsteps[-2]+s5]
-    y1=[min(Vs[-1]),   conds0[-1]]
-    a.plot(x1, y1, c=c[2], lw=lw)
-
-    a.axis('off')
-
-    if internally_plot_b==True:
-        iterable=np.argmax([len(x) for x in Vs]) # can plot the data used for legend
-        for i in range(len(Vs[iterable])):
-            b.plot(data[i][:])
-        add_scalebar(b,xunit=" ms",yunit=" pA",loc=3)
-    return fig, [a, b][:[None if internally_plot_b!=None else 1][0]]
-#toplegend2(data, Vs, [0]+[tsteps[0]]+tsteps[2:], conds0, conds1, col_base_con0_con2="krg", shifts=[0,0,0,0,0,0,0], internally_plot_b=[True, False, None][1], plotsizeratio=[1,5], plotsize=[6,4], monoheightscalar=8, fontfam="Arial", fontsize=14, lw=1, experiment="", all_Cl_is_green_base=0)

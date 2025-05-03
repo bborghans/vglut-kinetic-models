@@ -8,23 +8,46 @@ The script optimizes model parameters for the specified protein version using re
 If the script is restarted, it will overwrite the output file at the first checkpoint, using the most recent parameter set from the previous run.
 #### Inputs
 - Time course data are loaded from: `Cl_WT_measurements.py` and `Cl_H120A_measurements.py`
-    The following experimental conditions for the Wild type (WT) construct are used for the recordings:
+    The following experimental conditions were used for recordings of the wild-type (WT) construct:
     ```
+    Construct, internal [Cl], external [CL], external pH, leak subtracted version
+    
+    WT Cl- dataset name:
+    
     WTintCl140Cl_pH55leaksubtract
-    WTintCl140Cl_pH55Vdeactu
+    WTintCl140Cl_pH55Vdeact
     WTintCl_180Cl_pH50
     WTintCl_180Cl_pH65
     WTintClpH5_40ClApp
     WTintClpH5_140ClApp
     WTintCl140Cl_pH55App
-    WTintCl0Cl_pH5Appu
-    WTintCl0Cl_pHdep_55
+    WTintCl0Cl_pH5App
     WTintCl0Cl_pHdep_50
+    WTintCl0Cl_pHdep_55
     WTintCl_0Cl_pH55Vdeact_short
+    WT Cl- dataset name:
+
+    H120A Cl- dataset name
+
+    H120AintCl140Cl_pHdep_55
+    H120AintCl140Cl_pH55Vdeact
+    H120AintCl140ClpH50
+    H120AintCl140ClpH60
+    H120AintClpH5_140ClApp
+    H120AintCl140Cl_pH55App
+    H120AintCl0Cl_pH5App
+    H120AintCl_0Cl_pH55leaksubtract
+    H120AintCl_0Cl_pH55Vdeact
     ```
 - The model, time course conditions, and optimization functions are defined in: `Cl_model.py`
 - Parameter sets are loaded from files named as `####Cl_sym_output.txt` (e.g., `1234Cl_sym_output.txt`)
   If is not provided, a built-in default set with uniform intermediate values is used. 
+#### Outputs
+- `####Cl_sym_output.txt` contains: 
+    - 1 generation number,
+    - 2 weighted error
+    - 3 optimized parameters
+- `####Cl_sym_output_score.txt` contains the minimum weighted error stored every
 
 #### Example Usage
 ```bash

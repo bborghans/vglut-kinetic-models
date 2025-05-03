@@ -1,10 +1,19 @@
 protein=["WT", "H120A"][0]
 model="Cl" # model name is worked into the required _models file name below
 from Cl_model import Cltransitionmatrix as transitionmatrix
-from Cl_model import modelselect, loaddata, initialvalue, simulate, normalized_anioncurrent, fluxstates2, startcalc, toplegend2
+from Cl_model import modelselect, loaddata, initialvalue, simulate, normalized_anioncurrent, startcalc
 datasets, deps=loaddata(protein)
 
-import sys; from datetime import datetime; import warnings; import multiprocessing; from random import random; from deap import base, creator, tools; import inspect; import numpy as np;
+import os
+import sys
+from datetime import datetime
+import warnings
+import multiprocessing
+from random import random
+from deap import base, creator, tools
+import inspect
+import numpy as np
+
 exec(f'from {model}_{protein}_measurements import *')
 np.set_printoptions(legacy='1.25')
 
@@ -193,13 +202,13 @@ if __name__ == '__main__':######################################################
     try:
         warnings.filterwarnings("ignore", category=UserWarning, module="scipy.integrate")
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="deap.creator")
-
-        "background settings"
+        # background settings
         savefile   = "Cl_sym_output"#"fittest"+protein+model
+        scorefile  = "score"#fittest
         version    = 1234 #
         cluster    = 1 # enable cluster for multiprocessing
         save_sim   = 0 # write simulated serial time course and pH/Cl dependence to file
-        NPROCESSES = [1, 12, 128][cluster]
+        NPROCESSES = [1, 12, 128][cluster] # set number of parallel processes
         pop_size   = [50, 1000][cluster]#(10 if int(version)<1000 else 1)
         checkpoint = 1000
         autoH      = [0, 1e8][1] # automatically increases rates in this category to given nonzero number
@@ -210,7 +219,7 @@ if __name__ == '__main__':######################################################
         p_open     = 0.24 # open probability at pH 5, 140 mM Cl-, 160 mV
         opentime   = 90 # microseconds
 
-        "foreground settings"
+        # foreground settings
         pkaweight        = 1e4 # weight multipliers
         depweight        = [9e11, 9e11, 5e9] # Cl & pH dependency
         openchanceweight = 1e11
@@ -282,7 +291,7 @@ if __name__ == '__main__':######################################################
         toolbox.register("select", tools.selTournament, tournsize=3)
         toolbox.register("evaluate", evaluate)
         pop = toolbox.population(n=pop_size) # population size
-        CXPB, MUTPB, NGEN = 0.7, 0.5, 2 # crossover rate, mutation rate, generations
+        CXPB, MUTPB, NGEN = 0.7, 0.5, 10 #int(1e6) # crossover rate, mutation rate, generations
 
         running_updates=0#+1
         start_time = datetime.now()
@@ -351,8 +360,8 @@ if __name__ == '__main__':######################################################
                     writetype="a"
                 with open(f'{version}{savefile}.txt', writetype) as out:
                     if g==checkpoints[0]:
-                        out.write(f'generation {0}, x={0}, fitness={olderfitness[0]}: {start}\n')
-                    out.write(f'generation {g}, x={x}, fitness={bestfitness}: {fittest}\n')
+                        out.write(f'{0}\t{0}\t{olderfitess[0]}\t{start}\n')
+                    out.write(f'{g}\t{x}\t{bestfitness}\t{fittest}\n')
                 if running_updates:
                     print(f'Save {g}, {datetime.now().strftime("%H:%M:%S")}, duration: {str(datetime.now() - start_time).split(".")[0]}, {bestfitness}.')
                 start_time = datetime.now()
@@ -362,5 +371,5 @@ if __name__ == '__main__':######################################################
     except KeyboardInterrupt:
         if g:
             with open(f'{version}{savefile}.txt', "a") as out:
-                out.write(f'manual stop, generation {g}, x={x}, fitness={bestfitness}: {fittest}\n')
+                out.write(f'manual stop\n{g}\t{x}\t{bestfitness}\t{fittest}\n')
                 print(f'Saved on script termination: gen {g}, {bestfitness}, fail/dupe {x}: {fittest}.')
