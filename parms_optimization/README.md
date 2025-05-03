@@ -44,10 +44,10 @@ If the script is restarted, it will overwrite the output file at the first check
   If is not provided, a built-in default set with uniform intermediate values is used. 
 #### Outputs
 - `####Cl_sym_output.txt` contains: 
-    - 1 generation number,
-    - 2 weighted error
-    - 3 optimized parameters
-- `####Cl_sym_output_score.txt` contains the minimum weighted error stored every
+    - 1 generation number
+    - 2 number of iterations
+    - 3 weighted error
+    - 4 optimized parameters
 
 #### Example Usage
 ```bash

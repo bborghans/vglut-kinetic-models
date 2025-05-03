@@ -204,13 +204,12 @@ if __name__ == '__main__':######################################################
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="deap.creator")
         # background settings
         savefile   = "Cl_sym_output"#"fittest"+protein+model
-        scorefile  = "score"#fittest
         version    = 1234 #
         cluster    = 1 # enable cluster for multiprocessing
         save_sim   = 0 # write simulated serial time course and pH/Cl dependence to file
         NPROCESSES = [1, 12, 128][cluster] # set number of parallel processes
         pop_size   = [50, 1000][cluster]#(10 if int(version)<1000 else 1)
-        checkpoint = 1000
+        checkpoint = 1
         autoH      = [0, 1e8][1] # automatically increases rates in this category to given nonzero number
         slowones   = [12, 68] # limit infeasible rates, to 1
         slowlim    = 10000 # upper limit for slower (conformation) transitions
@@ -360,7 +359,8 @@ if __name__ == '__main__':######################################################
                     writetype="a"
                 with open(f'{version}{savefile}.txt', writetype) as out:
                     if g==checkpoints[0]:
-                        out.write(f'{0}\t{0}\t{olderfitess[0]}\t{start}\n')
+                        out.write(f'# gen\tx\tbestfitness\tbest parameters\n')
+                        out.write(f'{0}\t{0}\t{olderfitness[0]}\t{start}\n')
                     out.write(f'{g}\t{x}\t{bestfitness}\t{fittest}\n')
                 if running_updates:
                     print(f'Save {g}, {datetime.now().strftime("%H:%M:%S")}, duration: {str(datetime.now() - start_time).split(".")[0]}, {bestfitness}.')
@@ -371,5 +371,5 @@ if __name__ == '__main__':######################################################
     except KeyboardInterrupt:
         if g:
             with open(f'{version}{savefile}.txt', "a") as out:
-                out.write(f'manual stop\n{g}\t{x}\t{bestfitness}\t{fittest}\n')
+                out.write(f'# manual stop\n{g}\t{x}\t{bestfitness}\t{fittest}\n')
                 print(f'Saved on script termination: gen {g}, {bestfitness}, fail/dupe {x}: {fittest}.')
