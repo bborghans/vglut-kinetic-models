@@ -283,7 +283,7 @@ if __name__ == '__main__':
     parser.add_argument('-cxpb',default=0.7,type=float,help='Crossover rate')
     parser.add_argument('-mutpb',default=0.5,type=float,help='Mutation rate')
     parser.add_argument('-checkpoint',default=10,type=int,help='Frequency of data saving in number of generations')
-    parser.add_argument('-resume',choices=[0,1],default=0,help='Resume from file identified by its name and ID')
+    parser.add_argument('-resume',type=str,choices=['0','1'],default=0,help='Resume from file identified by its name and ID')
     args = parser.parse_args()
     mode = 0
     NPROCESSES         = args.nprocesses # extend of multiprocessing
@@ -295,7 +295,7 @@ if __name__ == '__main__':
     MUTPB              = args.mutpb
     NGEN               = args.ngen
     filename           = args.name 
-    resume             = args.resume
+    resume             = int(args.resume)
     slowlim            = 10000 # upper limit for slower (conformation) transitions
     fastlim            = 5e9 # upper limit for faster (ligand assocating) transitions
     chargelim          = 1 # limit to charge movement/electrogeneity
