@@ -26,7 +26,7 @@ def selectmodel(start, MODELS): # selects internal model format
 
     ID, samelen, g_len, a_len, slowones, clapp, start0=[MODELS[model][x] for x in ["ID","samelen","g_len","a_len","slowones","clapp","start0"]]
     return (model, ID, samelen, g_len, a_len, slowones, clapp, start0)
-def evaluate(START, mode, loadin, autoH, chargelim, slowlim, fastlim,
+def evaluate(START, mode, autoH, chargelim, slowlim, fastlim,
         slowones, modelfile, ID, samelen, g_len, a_len, modelselect, alt=0, reference=[inf]*19):
     RETURN=[]
     OUTTEXT={"GlutWT":{}, "AspWT":{}}
@@ -35,7 +35,7 @@ def evaluate(START, mode, loadin, autoH, chargelim, slowlim, fastlim,
             continue
         err=err2=0
         datasets, deps, start, model, Hdep, Cldep, Sdep, sig0, noVdep, flux, closingstates, states,\
-            variables, limsmin, limsmax, errs, worsenfactor, transitionmatrix=loadin(START, protein, model, SUB, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect, loaddata, alt)
+            variables, limsmin, limsmax, errs, worsenfactor, transitionmatrix=loadin(START, protein, model, SUB, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect, alt)
         datasets=[x for x in datasets if "_leaksubtract" not in x[0]]##########################################################
 
         peakweight,clweight,phweight,transportweight,pkaweight=[weights[protein][x] for x in ["peakweight","clweight","phweight","transportweight","pkaweight"]]
@@ -381,7 +381,7 @@ if __name__ == '__main__':
         startA=startcalc(START[:samelen] + START[g_len : g_len + a_len - samelen], "alt"*alt+"AspWT"+ID)
         return startG+startA[samelen:]
 
-    def loadin(START, protein, model, SUB, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect, loaddata, alt=0):
+    def loadin(START, protein, model, SUB, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect, alt=0):
         import importlib
         transitionmatrix=getattr(importlib.import_module(modelfile), f'{model+ID}_transitionmatrix')
         datasets, deps=loaddata(protein)
@@ -422,7 +422,7 @@ if __name__ == '__main__':
     START=STARTcalc(START, ID, samelen, g_len, a_len, startcalc)
     if mode >0:
         try:
-            err,outtext=evaluate(START, mode, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+            err,outtext=evaluate(START, mode, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
         except ValueError:
             if mode not in [2,3,6]:
                 sys.exit("Invalid START.")
@@ -435,13 +435,13 @@ if __name__ == '__main__':
                 pkl.dump(gen_errs, out)
             print(f'Parameters saved to {version}GA_sym_output.')
 
-    check=evaluate(START, 0, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+    check=evaluate(START, 0, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
     if inf not in check:#np.isfinite(check):
-        olderfitness,outtext=evaluate(START, 1, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+        olderfitness,outtext=evaluate(START, 1, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
     else:
-        test=evaluate(START, 1, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+        test=evaluate(START, 1, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
         if "*" in test:
-            evaluate(START, 3, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+            evaluate(START, 3, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
         sys.exit("Initial simulation is invalid, interrupting.")
 
     if resume==0:
@@ -458,7 +458,7 @@ if __name__ == '__main__':
     toolbox.register("select", tools.selTournament, tournsize=3)
     if mode==0: reference=[inf]*19
 
-    toolbox.register("evaluate", evaluate, mode=mode, loadin=loadin, autoH=autoH,
+    toolbox.register("evaluate", evaluate, mode=mode, autoH=autoH,
              chargelim=chargelim, slowlim=slowlim, fastlim=fastlim, slowones=slowones, modelfile=modelfile,
              ID=ID, samelen=samelen, g_len=g_len, a_len=a_len, modelselect=modelselect, reference=reference)
     pop = toolbox.population(n=pop_size) # population size
@@ -520,7 +520,7 @@ if __name__ == '__main__':
                 sys.exit("Gen",gen,"warning, interrupting because bounds are not applied:", min(fittest))
 
         if counter>=checkpoint and mode!=-2: ############################################### SimVarGen
-            err,outtext=evaluate(fittest, 1, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+            err,outtext=evaluate(fittest, 1, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
             gen_errs.append([[gen, err], deepcopy(weights), fittest])
             with open(VERSION+filename, "wb") as out: # "wb" to write new, "rb" to read
                 pkl.dump(gen_errs, out)
