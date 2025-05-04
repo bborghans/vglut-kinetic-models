@@ -4,7 +4,6 @@ import pickle
 import argparse
 from Cl_model import Cltransitionmatrix as transitionmatrix
 from Cl_model import modelselect, loaddata, initialvalue, simulate, normalized_anioncurrent, startcalc
-datasets, deps=loaddata(protein)
 
 import os
 import sys
@@ -202,7 +201,7 @@ def evaluate(start, model="Cl", reference=[np.inf]*19):
 if __name__ == '__main__':#######################################################################################
     g=0 # use as: Miniforge Prompt -> mamba activate env-> python Cl.py mode=0
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-protein',choices=['WT','H120A'],default='WT',help='Output file name')
+    parser.add_argument('-protein',choices=['WT','H120A'],default='WT',help='Constructs available')
     parser.add_argument('-name',default='Cl_sym_output',type=str,help='Output file name')
     parser.add_argument('-id',default=0,type=int,help='Output ID')
     parser.add_argument('-nprocesses',default=1,type=int,help='Number of parallel processes to run')

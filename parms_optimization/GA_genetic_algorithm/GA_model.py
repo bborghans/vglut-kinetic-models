@@ -283,6 +283,9 @@ def loaddata(protein="GlutWT"):
     else:
         print("Can only load proteins GlutWT and AspWT")
 ###############################################################################
+GlutWT0_transitionmatrix_args = ['k11','k12','z1','d1','k21','k22','z2','d2','k31','k32','z3','d3','k41','k42','z4','d4','k51','k52','z5','d5','k61','k62','z6','d6','k71','k72','z7','d7','k81','k82','z8','d8','k91','k92','z9','d9','ka1','ka2','za','da','kb1','kb2','zb','db','kc1','kc2','zc','dc','kd1','kd2','zd','dd','ke1','ke2','ze','de','kf1','kf2','zf','df','kg1','kg2','zg','dg','kh1','kh2','zh','dh','ki1','ki2','zi','di','kj1','kj2','zj','dj','kk1','kk2','zk','dk','kl1','kl2','zl','dl','km1','km2','zm','dm','kn1','kn2','zn','dn','ko1','ko2','zo','do','kp1','kp2','zp','dp','kq1','kq2','zq','dq','kr1','kr2','zr','dr', 'phex','phint','Clex','Clint','V'] # external pH, internal pH, external [Cl-], internal [Cl-], membrane V
+GlutWT0_states=["iapo", "iH", "iH2", "oH2", "oH", "oapo", "iCl", "iClH", "iClH2", "oClH2", "oClH", "oCl", "iH2S", "iHS", "oHS", "oH2S", "iClH2S", "iClHS", "oClHS", "oClH2S"]
+ 
 def GlutWT0_transitionmatrix(k11,k12,z1,d1,k21,k22,z2,d2,k31,k32,z3,d3,k41,k42,z4,d4,k51,k52,z5,d5,k61,k62,z6,d6,k71,k72,z7,d7,k81,k82,z8,d8,k91,k92,z9,d9,ka1,ka2,za,da,kb1,kb2,zb,db,kc1,kc2,zc,dc,kd1,kd2,zd,dd,ke1,ke2,ze,de,kf1,kf2,zf,df,kg1,kg2,zg,dg,kh1,kh2,zh,dh,ki1,ki2,zi,di,kj1,kj2,zj,dj,kk1,kk2,zk,dk,kl1,kl2,zl,dl,km1,km2,zm,dm,kn1,kn2,zn,dn,ko1,ko2,zo,do,kp1,kp2,zp,dp,kq1,kq2,zq,dq,kr1,kr2,zr,dr,
     phex,phint,Clex,Clint,V, # external pH, internal pH, external [Cl-], internal [Cl-], membrane V
     states=["iapo", "iH", "iH2", "oH2", "oH", "oapo", "iCl", "iClH", "iClH2", "oClH2", "oClH", "oCl", "iH2S", "iHS", "oHS", "oH2S", "iClH2S", "iClHS", "oClHS", "oClH2S"]):
@@ -446,6 +449,9 @@ def GlutWT0_transitionmatrix(k11,k12,z1,d1,k21,k22,z2,d2,k31,k32,z3,d3,k41,k42,z
 
     return A
 ###############################################################################
+
+AspWT0_transitionmatrix_args = ['k11','k12','z1','d1','k21','k22','z2','d2','k31','k32','z3','d3','k41','k42','z4','d4','k51','k52','z5','d5','k61','k62','z6','d6','k71','k72','z7','d7','k81','k82','z8','d8','k91','k92','z9','d9','ka1','ka2','za','da','kb1','kb2','zb','db','kc1','kc2','zc','dc','kd1','kd2','zd','dd','ke1','ke2','ze','de','kf1','kf2','zf','df','kg1','kg2','zg','dg','kh1','kh2','zh','dh','ki1','ki2','zi','di','kj1','kj2','zj','dj','kk1','kk2','zk','dk','kl1','kl2','zl','dl','km1','km2','zm','dm','kn1','kn2','zn','dn','ko1','ko2','zo','do','kp1','kp2','zp','dp','kq1','kq2','zq','dq','kr1','kr2','zr','dr', 'phex','phint','Clex','Clint','V']
+AspWT0_states=["iapo", "iH", "iH2", "oH2", "oH", "oapo", "iCl", "iClH", "iClH2", "oClH2", "oClH", "oCl", "iH2S", "iHS", "oHS", "oH2S", "iClH2S", "iClHS", "oClHS", "oClH2S"]
 def AspWT0_transitionmatrix(k11,k12,z1,d1,k21,k22,z2,d2,k31,k32,z3,d3,k41,k42,z4,d4,k51,k52,z5,d5,k61,k62,z6,d6,k71,k72,z7,d7,k81,k82,z8,d8,k91,k92,z9,d9,ka1,ka2,za,da,kb1,kb2,zb,db,kc1,kc2,zc,dc,kd1,kd2,zd,dd,ke1,ke2,ze,de,kf1,kf2,zf,df,kg1,kg2,zg,dg,kh1,kh2,zh,dh,ki1,ki2,zi,di,kj1,kj2,zj,dj,kk1,kk2,zk,dk,kl1,kl2,zl,dl,km1,km2,zm,dm,kn1,kn2,zn,dn,ko1,ko2,zo,do,kp1,kp2,zp,dp,kq1,kq2,zq,dq,kr1,kr2,zr,dr,
     phex,phint,Clex,Clint,V,states=["iapo", "iH", "iH2", "oH2", "oH", "oapo", "iCl", "iClH", "iClH2", "oClH2", "oClH", "oCl", "iH2S", "iHS", "oHS", "oH2S", "iClH2S", "iClHS", "oClHS", "oClH2S"]):
 
