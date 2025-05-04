@@ -1,6 +1,7 @@
 protein=["WT", "H120A"][0]
 model="Cl" # model name is worked into the required _models file name below
 import pickle
+import argparse
 from Cl_model import Cltransitionmatrix as transitionmatrix
 from Cl_model import modelselect, loaddata, initialvalue, simulate, normalized_anioncurrent, startcalc
 datasets, deps=loaddata(protein)
@@ -200,16 +201,29 @@ def evaluate(start, model="Cl", reference=[np.inf]*19):#, datasets, autoH, charg
     return [(err,), (err,fresh_errs)][False]
 if __name__ == '__main__':#######################################################################################
     g=0 # use as: Miniforge Prompt -> mamba activate env-> python Cl.py mode=0
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-protein',choices=['WT','H120A'],default='WT',help='Output file name')
+    parser.add_argument('-name',default='Cl_sym_output',type=str,help='Output file name')
+    parser.add_argument('-id',default=0,type=int,help='Output ID')
+    parser.add_argument('-nprocesses',default=1,type=int,help='Number of parallel processes to run')
+    parser.add_argument('-pop_size',default=50,type=int,help='Population of each generation')
+    parser.add_argument('-ngen',default=1000,type=int,help='Number of generations')
+    parser.add_argument('-cxpb',default=0.7,type=float,help='Crossover rate')
+    parser.add_argument('-mutpb',default=0.5,type=float,help='Mutation rate')
+    args = parser.parse_args()
     try:
         warnings.filterwarnings("ignore", category=UserWarning, module="scipy.integrate")
         warnings.filterwarnings("ignore", category=RuntimeWarning, module="deap.creator")
+        CXPB = args.cxpb
+        MUTPB = args.mutpb
+        NGEN = args.ngen
         # background settings
-        savefile   = "Cl_sym_output"#"fittest"+protein+model
-        version    = 1234 #
+        savefile   = args.name
+        version    = args.id
         cluster    = 1 # enable cluster for multiprocessing
         save_sim   = 0 # write simulated serial time course and pH/Cl dependence to file
-        NPROCESSES = [1, 12, 128][cluster] # set number of parallel processes
-        pop_size   = [50, 1000][cluster]#(10 if int(version)<1000 else 1)
+        NPROCESSES = args.nprocesses
+        pop_size   = args.pop_size
         checkpoint = 1
         autoH      = [0, 1e8][1] # automatically increases rates in this category to given nonzero number
         slowones   = [12, 68] # limit infeasible rates, to 1
@@ -249,7 +263,7 @@ if __name__ == '__main__':######################################################
             start0[i]=1 # unprotonated channel opening is restricted
 
         try:
-            with open(f'{version}{savefile}.txt', "r") as out:
+            with open(f'{version:04d}{savefile}.txt', "r") as out:
                 read_in=out.readlines()[-1].replace("\n", "")#[-1]
                 start=list(map(float, (read_in.split("[")[1].split("]")[0]).split(', ')))
                 print("Resuming from file ID", version)
@@ -298,7 +312,6 @@ if __name__ == '__main__':######################################################
         toolbox.register("select", tools.selTournament, tournsize=3)
         toolbox.register("evaluate", evaluate)
         pop = toolbox.population(n=pop_size) # population size
-        CXPB, MUTPB, NGEN = 0.7, 0.5, 10 #int(1e6) # crossover rate, mutation rate, generations
 
         running_updates=0#+1
         start_time = datetime.now()
@@ -365,7 +378,7 @@ if __name__ == '__main__':######################################################
                     writetype="w"
                 else:
                     writetype="a"
-                with open(f'{version}{savefile}.txt', writetype) as out:
+                with open(f'{version:04d}{savefile}.txt', writetype) as out:
                     if g==checkpoints[0]:
                         out.write(f'# gen\tx\tbestfitness\tbest parameters\n')
                         out.write(f'{0}\t{0}\t{olderfitness[0]}\t{start}\n')
@@ -378,6 +391,6 @@ if __name__ == '__main__':######################################################
         raise KeyboardInterrupt
     except KeyboardInterrupt:
         if g:
-            with open(f'{version}{savefile}.txt', "a") as out:
+            with open(f'{version:04d}{savefile}.txt', "a") as out:
                 out.write(f'# manual stop\n{g}\t{x}\t{bestfitness}\t{fittest}\n')
                 print(f'Saved on script termination: gen {g}, {bestfitness}, fail/dupe {x}: {fittest}.')
