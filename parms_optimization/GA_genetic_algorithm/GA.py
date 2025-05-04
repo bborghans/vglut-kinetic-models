@@ -49,7 +49,7 @@ def evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim,
 
         startcheck=np.asarray(start)
         if min(np.concatenate([startcheck-limsmin,limsmax-startcheck]))<0:
-            if mode in [0, -1, -2]: return inf,
+            if mode == 0: return inf,
             else: print("START VALUE OUT OF BOUNDS:",list(np.where(np.concatenate([startcheck-limsmin,limsmax-startcheck])<0)[0]%len(start)))
 
         for n,dataset in enumerate(datasets):
@@ -154,7 +154,7 @@ def evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim,
                 PEAKS.append(peaks**.5)
                 err2+=weighedpeaks
 
-            if mode in [1,2,3,4,5,6] or worsenfactor>0:
+            if mode in [1,3] or worsenfactor>0:
                 OUTTEXT[experiment]={}
                 if mode==1: print(f'{err-errprint}\t {experiment} ({round(100*(err-errprint)/(errs[n]*worsenfactor), 3)})')
 
@@ -163,14 +163,6 @@ def evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim,
 
             if mode==0 and worsenfactor>0 and errs[n] and sum([OUTTEXT[experiment][x]["err"] for x in [0,1,2]])>errs[n]*worsenfactor:
                 return inf,
-
-            if mode==4 and worsenfactor>0 and errs[n] and sum([OUTTEXT[experiment][x]["err"] for x in [0,1,2]])>errs[n]*worsenfactor:
-                errsum=sum([OUTTEXT[experiment][x]["err"] for x in [0,1,2]])
-                return inf, "*"*bool(errsum>errs[n]*worsenfactor)
-
-            if mode==6:
-                errsum=sum([OUTTEXT[experiment][x]["err"] for x in [0,1,2]])
-                print(f'{errsum}_{experiment}{"*"*bool(errsum>errs[n]*worsenfactor)}')
 
         err+=(10*err2)
         if mode!=0:
@@ -250,10 +242,7 @@ def evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim,
         if err<0:return inf,
         RETURN.append(err,)
         ########################################################################################################
-    if mode in [4,5]:
-        return np.sum(RETURN), OUTTEXT
-
-    if mode in [-2, -1, 1]:
+    if mode == 1:
         items=[]
         for KEY in OUTTEXT.keys():
             wait=[]
@@ -268,16 +257,7 @@ def evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim,
             if "_" in KEY:
                 items.append(sum(wait))
 
-        if mode==-1:
-            return np.sum(RETURN), items
-        elif mode==-2:
-            if inf in reference:
-                return np.sum(RETURN), items
-            elif any(x2 > x1*1.25 for x2,x1 in zip(items, reference)):
-                return inf,
-            else:
-                return np.sum(RETURN),
-        elif mode==1:
+        if mode==1:
             print("reference (error metric) =", items, end="\n\n")
             return np.sum(RETURN), OUTTEXT
 
