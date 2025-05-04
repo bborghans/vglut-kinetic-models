@@ -76,6 +76,29 @@ If the script is restarted, it will overwrite the output file at the first check
 
 #### Inputs
 - Time course data are loaded from: `GlutWT_measurements.py` and `AspWT_measurements.py`
+    The following experimental conditions were used for the recordings of the wild-type (WT) construct:
+    ```
+    The naming of each experimental condition is encoded as follows (refer to the manuscript for details):
+    Construct, internal [Cl], external [Cl], external pH, leak-subtracted version
+    
+    WT Glut dataset name:
+
+    WTintGlut40Cl_pH55
+    WTintGlut40Cl_pH5
+    WTintGlut40Cl_pH5App
+    WTintGlutpH5_40ClApp
+    WTintGlutpH55_140ClApp
+    WTintGlutpH55_140ClApp2
+    WTintGlutpH55_140ClApp_leaksubtract
+    WTintGlutpH55_140ClApp2_leaksubtract
+
+    WT Asp dataset name
+
+    WTintAsp40Cl_pH5
+    WTintAsp40Cl_pH5App
+    WTintAsppH55_40ClApp
+    WTintAsppH55_40ClApp_leaksubtract
+    ```
 - The model, time course conditions, and optimization functions are defined in: `GA_model.py`
 - Weighting factors for time course data and calculated metrics are loaded from: `GA_weights.py`
 - Parameter sets are loaded from output files (e.g., `0000GA_sym_output`)
