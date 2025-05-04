@@ -240,6 +240,7 @@ if __name__ == '__main__':######################################################
         opentimeweight   = 1e6
         slowsigs         = [1, .75, .66, .5, .33, .25, .1, .05, .005, .001][:]; sigroller=0 # factor by which sigma is reduced
 
+        datasets, deps=loaddata(protein)
         if protein == 'WT':
             with open('Cl_WT_measurements.pkl','rb') as f:
                 experimental_data = pickle.load(f)
