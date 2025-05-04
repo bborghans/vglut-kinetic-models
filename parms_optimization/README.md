@@ -1,7 +1,7 @@
 ## Parameter optimization
 We provide the data and the script used to optimize the transition rates of the conductive mechanism. 
 ### VGLUT1 chloride channel function
-**Cl.py**
+**Cl_genetic_algorithm/Cl.py**
 
 Performs parameter optimization for a kinetic model describing VGLUT1 chloride channel function, for either the wild-type (`WT`) or the `H120A` mutant version of the protein.
 The script optimizes model parameters for the specified protein version using residual sum of squares. Results are saved using a version ID (e.g., `1234`), producing files like `1234Cl_sym_output.txt`, which is provided containing an optimized parameter set for the WT. Parameters corresponding to the best fit are saved whenever the generation number reaches a defined checkpoint (default: 1000).
