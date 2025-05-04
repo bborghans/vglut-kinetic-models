@@ -210,6 +210,7 @@ if __name__ == '__main__':######################################################
     parser.add_argument('-ngen',default=1000,type=int,help='Number of generations')
     parser.add_argument('-cxpb',default=0.7,type=float,help='Crossover rate')
     parser.add_argument('-mutpb',default=0.5,type=float,help='Mutation rate')
+    parser.add_argument('-checkpoint',default=10,type=int,help='Frequency of data saving in number of generations')
     args = parser.parse_args()
     try:
         warnings.filterwarnings("ignore", category=UserWarning, module="scipy.integrate")
@@ -224,7 +225,7 @@ if __name__ == '__main__':######################################################
         save_sim   = 0 # write simulated serial time course and pH/Cl dependence to file
         NPROCESSES = args.nprocesses
         pop_size   = args.pop_size
-        checkpoint = 1
+        checkpoint = args.checkpoint
         autoH      = [0, 1e8][1] # automatically increases rates in this category to given nonzero number
         slowones   = [12, 68] # limit infeasible rates, to 1
         slowlim    = 10000 # upper limit for slower (conformation) transitions
