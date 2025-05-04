@@ -296,24 +296,8 @@ if __name__ == '__main__':
 
     VERSION=f'{version:04d}'
     fromfile=0
-    A="""2687280566.8554854_WTintGlut40Cl_pH55
-    124764969.72033526_WTintGlut40Cl_pH5
-    2088197643914.9985_WTintGlut40Cl_pH5App
-    903721147.0244515_WTintGlutpH5_40ClApp
-    1754102.1613024566_WTintGlutpH55_140ClApp
-    244923.7993450683_WTintGlutpH55_140ClApp2"""
-    B=A.split("\n")
-    errs=[eval(er.split("_")[0]) for er in B]#"      "
-    worsenfactor=1.*0
-    WFG=[errs,worsenfactor]
-
-    A="""2365285.1840912295_WTintAsp40Cl_pH5
-    8781541040413425.0_WTintAsp40Cl_pH5App
-    208095960180.2058_WTintAsppH55_40ClApp"""
-    B=A.split("\n")
-    errs=[eval(er.split("_")[0]) for er in B]#"      "
-    worsenfactor=1.*0
-    WFA=[errs,worsenfactor]
+    errs = [np.inf] * 6
+    worsenfactor = 0
 
     if from_parameter_set:
         start0=from_parameter_set
@@ -421,7 +405,6 @@ if __name__ == '__main__':
 
         start=startcalc(start, "alt"*alt+model+ID) # detailedbalance
 
-        errs,worsenfactor=[WFG,WFA][SUB]
         return datasets, deps, start, model, Hdep, Cldep, Sdep, sig0, noVdep, flux,\
             closingstates, states, variables, limsmin, limsmax, errs, worsenfactor, transitionmatrix
 
