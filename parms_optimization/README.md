@@ -67,7 +67,7 @@ options:
   -mutpb MUTPB          Mutation rate (default: 0.5)
 ```
 
-**Cl_genetic_algorithm/Cl.py**
+**GA_genetic_algorithm/GA.py**
 
 Performs parameter optimization and limited result visualization for a kinetic model describing active transport by VGLUT1, for glutamate and aspartate substrate in parallel.
 the script optimizes model parameters using residual sum of squares. Results are saved using a version ID (e.g., `1234`), producing files like `1234GA_sym_output`, which is provided containing an optimized parameter set. Parameters corresponding to the best fit are saved whenever the generation number reaches a defined checkpoint (default: 500).
