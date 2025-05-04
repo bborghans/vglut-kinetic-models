@@ -1,5 +1,6 @@
 protein=["WT", "H120A"][0]
 model="Cl" # model name is worked into the required _models file name below
+import pickle
 from Cl_model import Cltransitionmatrix as transitionmatrix
 from Cl_model import modelselect, loaddata, initialvalue, simulate, normalized_anioncurrent, startcalc
 datasets, deps=loaddata(protein)
@@ -14,7 +15,6 @@ from deap import base, creator, tools
 import inspect
 import numpy as np
 
-exec(f'from {model}_{protein}_measurements import *')
 np.set_printoptions(legacy='1.25')
 
 def evaluate(start, model="Cl", reference=[np.inf]*19):#, datasets, autoH, chargelim, slowlim, fastlim, limsmin, limsmax, slowones, reference=[np.inf]*19):
@@ -32,7 +32,8 @@ def evaluate(start, model="Cl", reference=[np.inf]*19):#, datasets, autoH, charg
             with open("write_sim.py", "a") as out:
                 out.write(experiment+" = [\n"); np.set_printoptions(threshold=np.inf)
 
-        data=eval(experiment)
+        data = experimental_data[experiment]
+        #data=eval(experiment)
         iterable_Vs=Vs[-1] # selects list of variable Vs when there's also a stationary segment
         length=tsteps[-1]
         t=np.arange(length)/freq # total timespan
@@ -224,6 +225,13 @@ if __name__ == '__main__':######################################################
         openchanceweight = 1e11
         opentimeweight   = 1e6
         slowsigs         = [1, .75, .66, .5, .33, .25, .1, .05, .005, .001][:]; sigroller=0 # factor by which sigma is reduced
+
+        if protein == 'WT':
+            with open('Cl_WT_measurements.pkl','rb') as f:
+                experimental_data = pickle.load(f)
+        elif protein == 'H120A':
+            with open('Cl_H120A_measurements.pkl','rb') as f:
+                experimental_data = pickle.load(f)
 
         if len(sys.argv)>1:
             if sys.argv[1].isdigit():
