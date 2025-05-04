@@ -26,7 +26,7 @@ def selectmodel(start, MODELS): # selects internal model format
 
     ID, samelen, g_len, a_len, slowones, clapp, start0=[MODELS[model][x] for x in ["ID","samelen","g_len","a_len","slowones","clapp","start0"]]
     return (model, ID, samelen, g_len, a_len, slowones, clapp, start0)
-def evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim,
+def evaluate(START, mode, loadin, autoH, chargelim, slowlim, fastlim,
         slowones, modelfile, ID, samelen, g_len, a_len, modelselect, alt=0, reference=[inf]*19):
     RETURN=[]
     OUTTEXT={"GlutWT":{}, "AspWT":{}}
@@ -294,7 +294,7 @@ if __name__ == '__main__':
     no_Asp             = 0 # disable the Aspartate component of the model
     MODEL              = 0 # in case of multiple accessible models
 
-    VERSION=str(version).zfill(4)
+    VERSION=f'{version:04d}'
     fromfile=0
     A="""2687280566.8554854_WTintGlut40Cl_pH55
     124764969.72033526_WTintGlut40Cl_pH5
@@ -439,7 +439,7 @@ if __name__ == '__main__':
     START=STARTcalc(START, ID, samelen, g_len, a_len, startcalc)
     if mode >0:
         try:
-            err,outtext=evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+            err,outtext=evaluate(START, mode, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
         except ValueError:
             if mode not in [2,3,6]:
                 sys.exit("Invalid START.")
@@ -452,13 +452,13 @@ if __name__ == '__main__':
                 pkl.dump(gen_errs, out)
             print(f'Parameters saved to {version}GA_sym_output.')
 
-    check=evaluate(START, 0, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+    check=evaluate(START, 0, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
     if inf not in check:#np.isfinite(check):
-        olderfitness,outtext=evaluate(START, 1, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+        olderfitness,outtext=evaluate(START, 1, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
     else:
-        test=evaluate(START, 1, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+        test=evaluate(START, 1, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
         if "*" in test:
-            evaluate(START, 3, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+            evaluate(START, 3, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
         sys.exit("Initial simulation is invalid, interrupting.")
 
     if resume==0:
@@ -475,7 +475,7 @@ if __name__ == '__main__':
     toolbox.register("select", tools.selTournament, tournsize=3)
     if mode==0: reference=[inf]*19
 
-    toolbox.register("evaluate", evaluate, mode=mode, WFA=WFA, loadin=loadin, autoH=autoH,
+    toolbox.register("evaluate", evaluate, mode=mode, loadin=loadin, autoH=autoH,
              chargelim=chargelim, slowlim=slowlim, fastlim=fastlim, slowones=slowones, modelfile=modelfile,
              ID=ID, samelen=samelen, g_len=g_len, a_len=a_len, modelselect=modelselect, reference=reference)
     pop = toolbox.population(n=pop_size) # population size
@@ -537,7 +537,7 @@ if __name__ == '__main__':
                 sys.exit("Gen",gen,"warning, interrupting because bounds are not applied:", min(fittest))
 
         if counter>=checkpoint and mode!=-2: ############################################### SimVarGen
-            err,outtext=evaluate(fittest, 1, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+            err,outtext=evaluate(fittest, 1, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
             gen_errs.append([[gen, err], deepcopy(weights), fittest])
             with open(VERSION+filename, "wb") as out: # "wb" to write new, "rb" to read
                 pkl.dump(gen_errs, out)
