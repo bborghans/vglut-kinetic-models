@@ -2,7 +2,7 @@ mode=( # 0:optimization via genetic fit algorithm, 1:details, 2:state distributi
 1
 )
 modelfile="GA_model"
-from GA_model import modelselect, loaddata, startcalc, initialvalue, simulate, gatingcurrent, stationarycurrent, fluxstates3, plotstates2#, paramplot, writestart, toplegend2
+from GA_model import modelselect, loaddata, startcalc, initialvalue, simulate, gatingcurrent, stationarycurrent, fluxstates3
 import sys; from copy import deepcopy; from deap import base, creator, tools; from random import random; import inspect; import numpy as np; from math import inf; import pickle as pkl; import multiprocessing; import warnings; from scipy.linalg import LinAlgWarning; from datetime import datetime; import matplotlib.pyplot as plt;
 np.set_printoptions(legacy='1.25')
 
@@ -77,9 +77,6 @@ def evaluate(START, mode, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim,
                     sweep[2]=gatingcurrent(step0, sim2, start, flux)
 
                 sweep*=(Imax/subnormer)
-
-                if mode==2 and V==0:
-                    plotstates2([sim0,sim1,sim2], freq, states, tsteps, experiment, label=1, show=show, save=save)
 
                 if mode==3 and V==0:
                     fluxstates3(A0=[step0,step1,step0], y0=[sim0,sim1,sim2], freq=freq, states=states, tsteps=tsteps, flux=flux, experiment=experiment, svg_or_png=1, label=1, full=0,\
@@ -271,7 +268,6 @@ def evaluate(START, mode, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim,
     return np.sum(RETURN),#end
 if __name__ == '__main__':
     "Running with a non-empty <from_parameter_set> below will simulate from it, rather than opening the <version> file below"
-    optimized_parameter_set=[1095269177.4675012, 1000, -0.15421903708066254, 0.8509538641493256, 294174013.83132875, 16376705.773529066, -0.9967660039561052, 5.105759887117164e-08, 7526.779981268539, 8755.95071396453, -0.5700467744733442, 0.7059504792055679, 146565504.59883535, 1000, -0.9236113885823142, 0.1721768604503449, 149429515.2266242, 1000, -0.9649094515782813, 0.9930663686610615, 1392791622.0090842, 366687390.89139754, 0.022637854495137083, 0.7430194493895187, 858176802.0900823, 1000, -0.5163234394000882, 0.9986691280243428, 3212.92106651059, 9926.839789042622, -0.8286873677961262, 0.9859689244668174, 371641264.50691557, 1000, -0.9630734564362926, 0.26552353076057417, 948675410.5158807, 1000, -0.8141637772363048, 0.010505666995604337, 1000, 6.3782488035057705, -0.22555708926142104, 0.10310636478890667, 619913.6615236911, 10025.933625721707, -0.18609502140744272, 0.0316887043585846, 434034053.1486239, 44565489.24233581, -0.33684069574941927, 0.006224657894693473, 1000, 68816726.18266672, -0.9959485781587907, 0.9985902696952598, 2851119199.849195, 384065263.05951196, -0.3116734708889899, 0.5904175573026531, 716.252408479346, 6.502617277496788, -0.7275316147558513, 0.00018545550144734605, 4412370905.225374, 34907639.8473314, -0.8461944782689655, 0.8150262350336182, 139675303.04375777, 4405553317.2328, 0.3120455741787267, 0.0030948318551721568, 39155219.24301096, 4381507102.29029, -0.35479583886563254, 0.0364869609120432, 1323711382.8038626, 57204735.049285, 0.3282948635263183, 0.3824270354721183, 1553.254393481456, 991.96640568565, -0.19652507020138077, 0.3414320950549635, 4973370471.788941, 1981918.4533993315, -0.9578382417484005, 0.8615551441521289, 3172613847.747088, 676691602.8925138, 0.991233353454394, 0.9907389196556018, 37519000.22619294, 32126.169801267664, 0.5652744534936812, 0.2922048000260236, 4998862778.58027, 215608.26464810251, 0.4536306900142463, 0.00034077558946806006, 0.32678865898770515, 0.00017424001288291087, -0.2620526221358268, 0.16972523065214234, 0.80733037830023, 0.004754468375198573, -0.4826581754760997, 0.1858679668584576, 601376.111043681, 849220.7908282045, -0.05184241768891382, 0.15486559508278752, 554120689.9684634, 198900316.6133083, -0.37380529960455966, 0.06916396389343288, 196.7439166746461, 303.7106685375859, -0.9498109714536906, 0.22508623366342045, 4926299389.519943, 1143815345.4690511, -0.9422169878493903, 0.1305938063378658, 3093598987.925261, 3749791491.1145782, 0.9999816970859092, 0.995104556427794, 18449165.888446257, 1000, -0.5723491620342643, 0.6741512438644036, 3984484877.5182137, 1000, 0.5408139140095878, 0.9996818060832617, 18.179586437540788, 0.2371140431561412, -0.4913384018459648, 0.9779002456877648, 100062232.24021704, 1000, -0.43460869029574284, 4.420393898556687e-05, 109751994.2081706, 1000, 0.7895771996105664, 0.5335021459124639, 1000, 1.1139129108834525, -0.9435698842904114, 0.8706681897734239, 866714089.9156774, 41.55485685508216, -0.4359615867367639, 0.9674364178488436, 219.5960595239116, 219.27407435618878, -0.5182226596985211, 0.004870366039147044, 6375.505570847915, 3311.234222226865, -0.46676100615129545, 0.8902492258134688]
     from_parameter_set=[]#+optimized_parameter_set
     if sys.argv==[""] or 0: # activates when run in script editor, change 0 to nonzero to use <version> file below in console as well
         version=1000#1234 #
@@ -486,61 +482,6 @@ if __name__ == '__main__':
         except FileNotFoundError:
             print(f'SimVarGen{VERSION} does not exist, will be generated.')
             SimVarGen=[START]
-    #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-    if mode==-1:
-        paired=0+1+1
-        long=0+1
-        n=51; results={}; do=[[x for x in range(len(START)) if (x%4 in [0,1] or True)], np.array(Cldep)+0, np.array(Sdep)+1][paired]
-        base_err,reference=evaluate(START, -2, WFG, WFA, loadin, autoH, chargelim,
-                        slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
-        for r in do[:]:
-            start2=START.copy()
-            rate=start2[r]
-            if r%4==3:
-                x=np.concatenate([np.linspace(0, rate, int(n/2), endpoint=False), [rate], np.linspace(1, rate, int(n/2), endpoint=False)[::-1]])
-            elif r%4==2:
-                x=np.concatenate([np.linspace(-1, rate, int(n/2), endpoint=False), [rate], np.linspace(1, rate, int(n/2), endpoint=False)[::-1]])
-            else:
-                if not long:
-                    x=np.logspace(-2, 2, n)*rate
-                else:
-                    fulllim=np.logspace(0, np.log10(fastlim), n-1) # rate constants: spread over full range
-                    x=np.sort(np.append(fulllim, rate))
-
-            if r//4 in set([x//4 for x in SIG0]):#[1,2, 9,10, 17,18, 33,34, 45,46, 61,62, 69,70, 77,78]
-                alt=1 # model="altSYM"+ID;
-            else:
-                alt=0 # model="SYM"+ID;
-
-            results[r]={"baserate":rate, "values":x, "errors":[]}
-            for v,var in enumerate(x): # main loop
-                start2[r]=var
-
-                if paired:
-                    start2[r+1]=var * (START[r+1] / rate) # modify kX0 to maintain ratio with k0X # v-- alt: manually select detailed balance where neither is calculated
-
-                variant=evaluate(start2, -2, WFG, WFA, loadin, autoH, chargelim, slowlim,
-                                 fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect, alt=[alt, 1, 0][paired])
-                variant=variant[-1]
-                statistic=max(variant/np.array(reference))
-                results[r]["errors"].append(min(statistic, 10)) # limit output to 10x norm RSS
-
-            plt.plot(x, results[r]["errors"], c="b")#AX[r]
-            plt.scatter(rate, 1, c="b")
-            plt.axhline(1.5, c="k")
-            plt.title(f'{r}, {["rate1","rate2","z","d"][r%4]}')
-            plt.ylim(0.5,10)
-            if r%4<2: plt.xscale("log")
-            plt.xlabel("Rate value")
-            plt.ylabel("Relative error")
-            if save: plt.savefig(f'{r}_{["rate1","rate2","z","d"][r%4]}.png')
-            if show: plt.show()
-            else: plt.close()
-        with open(f'GA_{["long"*long, "Cl", "S"][paired]}rangecheck{VERSION}.pkl', "wb") as out: # "wb" to write new, "rb" to read
-            pkl.dump([START, results], out)
-        sys.exit()
 
     START=STARTcalc(START, ID, samelen, g_len, a_len, startcalc)
     if mode >0:
@@ -581,16 +522,6 @@ if __name__ == '__main__':
         toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=SIG, indpb=0.5)
         toolbox.register("select", tools.selTournament, tournsize=3)
         if mode==0: reference=[inf]*19
-        if mode==-2:  ############################################################# SimVarGen
-            SIG=[#
-            # [x/100 for x in LIMRANGE], # 1%
-            # [x/1000 for x in LIMRANGE], # .1%
-            # [x/100 if x<=10000 else 100 for x in LIMRANGE], # 1%, 100 for fastlim
-            [x/1000 if x<=10000 else 10 for x in LIMRANGE], # .1%, 10 for fastlim
-                ][sigroller%1]
-            check,reference=evaluate(START, -1, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
-            print("SimVarGen, reference =", reference)
-            if not np.isfinite(check) or inf in reference: sys.exit("Evaluate not ready to run SimVarGen.")
 
         toolbox.register("evaluate", evaluate, mode=mode, WFG=WFG, WFA=WFA, loadin=loadin, autoH=autoH,
                  chargelim=chargelim, slowlim=slowlim, fastlim=fastlim, slowones=slowones, modelfile=modelfile,
@@ -649,19 +580,6 @@ if __name__ == '__main__':
 
                 fitnesses = list(toolbox.map(toolbox.evaluate, offspring))
                 fittest0=offspring[np.argmin(fitnesses)]
-
-                if mode==-2: ############################# SimVarGen
-                    if not SimVarGen and newfile==0:
-                        SimVarGen.append(START)
-                    for ind, fit in zip(offspring, fitnesses):
-                        if np.isfinite(fit):
-                            SimVarGen.append(STARTcalc(ind, ID, samelen, g_len, a_len, startcalc))
-                    if len(SimVarGen)>10000:
-                        with open(f'SimVarGen{VERSION}{newfile}.pkl', "wb") as out: # "wb" to write new, "rb" to read
-                            pkl.dump(SimVarGen, out)
-                        SimVarGen=[]; print(f'Saved to SimVarGen{VERSION}{newfile}.pkl ({datetime.now().strftime("%H:%M")}).'); newfile+=1
-                    if newfile>=15:
-                        sys.exit("SimVarGen finished.")
 
                 fittest=STARTcalc(fittest0, ID, samelen, g_len, a_len, startcalc)
                 if min(fittest[:(g_len if not a_len else None)])<-1:
