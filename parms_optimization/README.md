@@ -74,11 +74,14 @@ the script optimizes model parameters using residual sum of squares. Results are
 
 If the script is restarted, it will overwrite the output file at the first checkpoint, using the most recent parameter set from the previous run.
 
-#### Input 
+#### Inputs
 - Time course data are loaded from: `GlutWT_measurements.py` and `AspWT_measurements.py`
 - The model, time course conditions, and optimization functions are defined in: `GA_model.py`
 - Weighting factors for time course data and calculated metrics are loaded from: `GA_weights.py`
 - Parameter sets are loaded from output files (e.g., `0000GA_sym_output`)
+* The output is `####GA_sym_output` is a pickle file and contains:
+    - 1 generation number
+    - 2 weighted error
 
 If no output file is provided and no parameter set is pasted directly into `GA.py`, a built-in default set with uniform intermediate values is used.
 #### Code Usage
