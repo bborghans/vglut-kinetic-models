@@ -1,16 +1,17 @@
 ## Parameter optimization
 We provide the data and the script used to optimize the transition rates of the conductive mechanism. 
 ### VGLUT1 chloride channel function
-**Cl genetic algorithm/Cl.py**
+**Cl.py**
 
 Performs parameter optimization for a kinetic model describing VGLUT1 chloride channel function, for either the wild-type (`WT`) or the `H120A` mutant version of the protein.
 The script optimizes model parameters for the specified protein version using residual sum of squares. Results are saved using a version ID (e.g., `1234`), producing files like `1234Cl_sym_output.txt`, which is provided containing an optimized parameter set for the WT. Parameters corresponding to the best fit are saved whenever the generation number reaches a defined checkpoint (default: 1000).
 If the script is restarted, it will overwrite the output file at the first checkpoint, using the most recent parameter set from the previous run.
 #### Inputs
-- Time course data are loaded from: `Cl_WT_measurements.py` and `Cl_H120A_measurements.py`
-    The following experimental conditions were used for recordings of the wild-type (WT) construct:
+* Time course data are loaded from: `Cl_WT_measurements.pkl` and `Cl_H120A_measurements.pkl`
+    The following experimental conditions were used for the recordings of the wild-type (WT) construct:
     ```
-    Construct, internal [Cl], external [CL], external pH, leak subtracted version
+    The naming of each experimental condition is encoded as follows (refer to the manuscript for details):
+    Construct, internal [Cl], external [Cl], external pH, leak-subtracted version
     
     WT Cl- dataset name:
     
@@ -39,18 +40,30 @@ If the script is restarted, it will overwrite the output file at the first check
     H120AintCl_0Cl_pH55leaksubtract
     H120AintCl_0Cl_pH55Vdeact
     ```
-- The model, time course conditions, and optimization functions are defined in: `Cl_model.py`
-- Parameter sets are loaded from files named as `####Cl_sym_output.txt` (e.g., `1234Cl_sym_output.txt`)
+* The model, time course conditions, and optimization functions are defined in: `Cl_model.py`
+* Parameter sets are loaded from files named as `####Cl_sym_output.txt` (e.g., `1234Cl_sym_output.txt`)
   If is not provided, a built-in default set with uniform intermediate values is used. 
-#### Outputs
-- `####Cl_sym_output.txt` contains: 
+* The output is `####Cl_sym_output.txt` and contains: 
     - 1 generation number
     - 2 number of iterations
     - 3 weighted error
     - 4 optimized parameters
-
-#### Example Usage
-```bash
-python Cl.py 1234 protein="WT"
+#### Code usage
+[Cl.py](Cl_genetic_algorithm/Cl.py) optimizes starting transition rates given the provided experimental data
 ```
-The first argument defines a unique naming for the output file defined as `####Cl_sym_output.txt` for the output file, updated every  and `protein` refers to the model used: either **WT** or **H120A**.
+  usage: Cl.py [-h] [-protein {WT,H120A}] [-name NAME] [-id ID] [-nprocesses NPROCESSES] [-pop_size POP_SIZE]
+             [-ngen NGEN] [-cxpb CXPB] [-mutpb MUTPB]
+
+options:
+  -h, --help            show this help message and exit
+  -protein {WT,H120A}   Output file name (default: WT)
+  -name NAME            Output file name (default: Cl_sym_output)
+  -id ID                Output ID (default: 0)
+  -nprocesses NPROCESSES
+                        Number of parallel processes to run (default: 1)
+  -pop_size POP_SIZE    Population of each generation (default: 50)
+  -ngen NGEN            Number of generations (default: 1000)
+  -cxpb CXPB            Crossover rate (default: 0.7)
+  -mutpb MUTPB          Mutation rate (default: 0.5)
+```
+

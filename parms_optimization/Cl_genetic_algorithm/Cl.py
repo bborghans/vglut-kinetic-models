@@ -18,7 +18,7 @@ import numpy as np
 
 np.set_printoptions(legacy='1.25')
 
-def evaluate(start, model="Cl", reference=[np.inf]*19):#, datasets, autoH, chargelim, slowlim, fastlim, limsmin, limsmax, slowones, reference=[np.inf]*19):
+def evaluate(start, model="Cl", reference=[np.inf]*19):
     fresh_errs=[[] for _ in range(5)];
     start=startcalc(start, model)
     err=0; weirdpeaks=1
@@ -246,17 +246,6 @@ if __name__ == '__main__':######################################################
         elif protein == 'H120A':
             with open('Cl_H120A_measurements.pkl','rb') as f:
                 experimental_data = pickle.load(f)
-
-        if len(sys.argv)>1:
-            if sys.argv[1].isdigit():
-                version = sys.argv[1]
-                del sys.argv[1]
-            if len(sys.argv)>1:
-                args = dict(arg.split('=', 1) for arg in sys.argv[1:]) # allows console kwargs to override variables
-                for key, value in args.items():
-                    if key in globals():
-                        globals()[key] = int(value) if value.isdigit() else value # update variables received through argv
-                        print(f'passed with argument {key}={value}')
 
         start0=[1000, 1000, 0, 0.5]*20 # parameter set with initial guesses: rates=1000, z=0, d=0.5
         for i in slowones:
