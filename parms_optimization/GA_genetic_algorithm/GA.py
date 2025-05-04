@@ -42,7 +42,7 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
         err=err2=0
         datasets, deps, start, model, Hdep, Cldep, Sdep, sig0, noVdep, flux, closingstates, states,\
             variables, limsmin, limsmax, errs, worsenfactor, transitionmatrix=loadin(START, protein, model, SUB, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, alt)
-        datasets=[x for x in datasets if "_leaksubtract" not in x[0]]##########################################################
+        datasets=[x for x in datasets if "_leaksubtract" not in x[0]]
 
         peakweight,clweight,phweight,transportweight,pkaweight=[weights[protein][x] for x in ["peakweight","clweight","phweight","transportweight","pkaweight"]]
         def peakweigh(sweep, err, multiplier=1, low=-.5, hi=1.25):
@@ -150,7 +150,7 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
                         if "App2" not in experiment:
                             e_segment[:len(e_segment)//5]*=2 # doubles err for 1st 20% if leaksubtracted
 
-                    fitmultiplier=5#*9
+                    fitmultiplier=5
                     if experiment=="WTintAsppH55_40ClApp": # weightrule
                         fitmultiplier*=2
                     error=fitmultiplier*e_segment**2
@@ -175,7 +175,6 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
         if mode!=0:
             if mode==1: print(err2, "\t weirdpeaks")
             OUTTEXT[protein]["peakweight"]={"max":max(PEAKS), "err":err2}
-        ########################################################################################################
         errprint=err
         for i,key in enumerate(deps):
             dep=deps[key]
@@ -188,11 +187,11 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
                     for V in Vs:
                         A=transitionmatrix(*start, pH, 7.4, Cl, .14, V)
                         AW=initialvalue(states,A)
-                        ys0.append(stationarycurrent(A, AW, start, flux))#(normalized_anioncurrent(openstates,AW))
+                        ys0.append(stationarycurrent(A, AW, start, flux))
             ys0=np.asarray(ys0)
             ys=ys0/ys0[data.index(1)]
 
-            diffs=(ys-data)**2#[abs(a) for a in ys-data]
+            diffs=(ys-data)**2
 
             if ys[0]>1:
                 diffs*=100
@@ -211,7 +210,6 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
                     print(protein, ["Cldep","pHdep"][i], [round(x, 2) for x in ys])
 
         if mode==1: print (err-errprint,"\t direct pH/Cl dep")
-        ########################################################################################################
         errprint=err #              pH,  M Cl,  mV
         for i,params in enumerate([[5.5, .04, -.16]]):
             ph,cl,v = params
@@ -221,11 +219,9 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
             transport = stationarycurrent(A, AW, start, flux)
             TR=transportrate[SUB]
             err=err+transportweight*(transport-TR)**2
-            # if mode==0 and not (TR*.98)>transport>(TR*1.02): return inf,
         if mode!=0:
             if mode==1: print(err-errprint, f'\t transport /s (vs {TR}{[" -G⁻ + +H⁺", ""][SUB]}):', transport)
             OUTTEXT[protein]["transportweight"]={"rmsd":abs((transport-TR)/TR), "err":err-errprint}
-        ########################################################################################################
         errprint=err
         pKas=[]
         for i in Hdep:
@@ -242,13 +238,12 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
             if mode==1:
                 print("pKa",",".join([variables[j] for j in Hdep]),"=",[round(x,1) for x in pKas])
                 print(err-errprint,"\t err pka")
-                print(err,"\t TOTAL ERR",protein)#,400000/openchance_Cl
+                print(err,"\t TOTAL ERR",protein)
             OUTTEXT[protein]["pkaweight"]={"max":max([max(MIN-pka, pka-MAX, 0) for pka in pKas]), "err":err-errprint}
 
         if err!=err:return inf,
         if err<0:return inf,
         RETURN.append(err,)
-        ########################################################################################################
     if mode == 1:
         items=[]
         for KEY in OUTTEXT.keys():
@@ -268,10 +263,10 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
             print("reference (error metric) =", items, end="\n\n")
             return np.sum(RETURN), OUTTEXT
 
-    return np.sum(RETURN),#end
+    return np.sum(RETURN),
 if __name__ == '__main__':
     "Running with a non-empty <from_parameter_set> below will simulate from it, rather than opening the <version> file below"
-    from_parameter_set=[]#+optimized_parameter_set
+    from_parameter_set=[]
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-name',default='GA_sym_output',type=str,help='Output file name')
@@ -450,9 +445,6 @@ if __name__ == '__main__':
     if mode==0: reference=[inf]*19
 
     toolbox.register("evaluate", evaluate)
-#    toolbox.register("evaluate", evaluate, mode=mode, autoH=autoH,
-#             chargelim=chargelim, slowlim=slowlim, fastlim=fastlim, slowones=slowones, modelfile=modelfile,
-#             ID=ID, samelen=samelen, g_len=g_len, a_len=a_len, reference=reference)
     pop = toolbox.population(n=pop_size) # population size
 
     for i in range(pop_size):
@@ -493,14 +485,8 @@ if __name__ == '__main__':
             pool = multiprocessing.Pool(processes=NPROCESSES)
             toolbox.register("map", pool.map)
             fitnesses = list(toolbox.map(evaluate_individual, invalid_ind))
-            #fitnesses = list(toolbox.map(toolbox.evaluate, invalid_ind))
         else:
             fitnesses = list(toolbox.map(evaluate_individual, invalid_ind))
-            #fitnesses = list(toolbox.map( lambda ind: toolbox.evaluate(ind, experimental_data, mode,autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len), invalid_ind))
-#    toolbox.register("evaluate", evaluate, mode=mode, autoH=autoH,
-#             chargelim=chargelim, slowlim=slowlim, fastlim=fastlim, slowones=slowones, modelfile=modelfile,
-#             ID=ID, samelen=samelen, g_len=g_len, a_len=a_len, reference=reference)
-#            fitnesses = list(toolbox.map(toolbox.evaluate, invalid_ind))
 
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
@@ -517,7 +503,7 @@ if __name__ == '__main__':
             if min(fittest[:(g_len if not a_len else None)])<-1:
                 sys.exit("Gen",gen,"warning, interrupting because bounds are not applied:", min(fittest))
 
-        if counter>=checkpoint and mode!=-2: ############################################### SimVarGen
+        if counter>=checkpoint and mode!=-2: 
             err,outtext=evaluate(fittest,experimental_data, 1, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len)
             gen_errs.append([[gen, err], deepcopy(weights), fittest])
             with open(VERSION+filename, "wb") as out: # "wb" to write new, "rb" to read
