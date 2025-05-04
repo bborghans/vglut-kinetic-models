@@ -103,72 +103,6 @@ def modelselect(start, model=None, whatsfast=3):
     return model, Hdep, Cldep, Sdep, sig0, noVdep, connections, closingstates
 
 
-def plotstates2(y, freq, states, tsteps, experiment="", svg_or_png=1, label=0, savedir="", show=0, save=1):
-    """Plots state distribution for each experiment"""
-    import matplotlib.pyplot as plt
-    rainbow=plt.get_cmap('gist_rainbow')
-    if freq>50:
-        freq/=1000
-    steps=int(len(tsteps)/2-1)
-    time=[np.arange(tsteps[[1 if x>0 else 0][0]+2*x], tsteps[2+2*x])/freq for x in range(steps)]
-    fig,ax = plt.subplots(1, 1, figsize=(3.5*(steps),4))#, sharey=True
-    for n,state in enumerate(states):
-        for step in range(steps):
-            ax.plot(time[step], y[step][:,n], label=state.replace("2", "$_2$")*(step==0), c=rainbow(1/(len(states)-1)*n))
-    plt.yscale("log")
-    low=ax.get_ylim()[0]
-    plt.ylim(max(low,1e-9),1)
-    plt.xlim(tsteps[0]/freq,tsteps[-2]/freq)
-    plt.xlabel("ime (ms)")
-    plt.ylabel("Relative state distribution")
-    plt.legend(loc='center left', bbox_to_anchor=(1, .5))
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
-    if label!=0:
-        plt.title(experiment)
-    for l in [tsteps[[-4,-6][x]]/freq for x in range(len(tsteps)//2-2)]:
-        plt.axvline(l, lw=.5, ls="--", color="0.5", zorder=0)
-    if save: plt.savefig(savedir+f"{experiment}_states.{['svg','png'][svg_or_png]}", bbox_inches='tight')#{savedir}
-    if show: plt.show()
-    else: plt.close()
-    #plotstates2([sim0,sim1,sim2],states,tsteps,experiment,svg_or_png,label=1)
-
-
-def fluxstates3(A0, y0, freq, states, tsteps, flux, experiment="", svg_or_png=1, label=0, full=0, names="", focus=[], savedir="", show=0, save=1):
-    """Plots flux between states in transition matrix. Modified for active transport."""
-    import matplotlib.pyplot as plt
-    if not names:
-        names=states
-    rainbow=plt.get_cmap('gist_rainbow')
-    if full==0:
-        connections=[x for x in flux if x in focus]
-    if freq>50:
-        freq/=1000
-    steps=int(len(tsteps)/2-1)
-    time=[np.arange(tsteps[[1 if x>0 else 0][0]+2*x], tsteps[2+2*x])/freq for x in range(steps)]
-    fig,ax = plt.subplots(1, 1, figsize=(3.5*(steps),4))
-
-    for n,(rate,TO,FROM) in enumerate(connections):
-        name=f'{names[FROM]} → {names[TO]}'
-        for step in range(steps):
-            forth=A0[step][TO, FROM]*y0[step][:, FROM]
-            back =A0[step][FROM, TO]*y0[step][:, TO]
-            ax.plot(time[step], forth-back, label=name.replace("2", "$_2$")*(step==0), c=rainbow(1/(len(connections)-1)*n))
-    plt.axhline(0,c="k",linewidth=.5)
-    plt.yscale("symlog")
-    plt.xlim(tsteps[0]/freq,tsteps[-2]/freq)
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
-    if label!=0:
-        plt.title(experiment)
-    plt.legend(loc='center left', bbox_to_anchor=(1, .5))
-    for l in [tsteps[[-4,-6][x]]/freq for x in range(int(len(tsteps)/2-2))]:
-        plt.axvline(l, lw=.5, ls="--", color="0.5", zorder=0)
-    if save: plt.savefig(savedir+f"{experiment}_flux.{['svg','png'][svg_or_png]}", bbox_inches='tight')#{savedir}
-    if show: plt.show()
-    else: plt.close()
-
-
 def dicts(data, full=0, indent=["    ", "\t"][1]):
     """Returns name, type, and shape or value for the contents of each key in a dictionary.
     Shows all objects in dictionary when full!=0. Indent is tab by default, can be changed."""
@@ -211,62 +145,6 @@ def dicts(data, full=0, indent=["    ", "\t"][1]):
                         print(f" {value}")
             else:
                 print(f" {value}")
-
-
-def paramplot(start, model, Hdep, Cldep, Sdep=[], variables=[], save=1, store=0, title="", savedir=""):
-    """Plots overall distribution of parameters."""
-    import matplotlib.pyplot as plt
-    fig,ax=plt.subplots(figsize=(8,4))
-    for i in range(len(start)):
-        c=c_default="k"
-        c_Cl="g"
-        c_H="r"
-        c_S="cyan"
-        if i in np.array(Hdep): c=c_H
-        if i in np.array(Cldep): c=c_Cl
-        if i in Sdep: c=c_S
-        ax.plot(i, start[i], marker="s", ms=4, c=c, zorder=0+1*(c!=c_default))
-    for i in np.arange(4, len(start), 4)-.5:
-        plt.axvline(i,c="grey")
-    ax.set_xticks([x*4+1.5 for x in range(len(start)//4)])
-    if variables and len(variables)==len(start):
-        ax.set_xticklabels(variables[::4]) # selects every 4th label if nr labels = nr of datapoints
-    elif variables and len(variables)*4==len(start):
-        ax.set_xticklabels(variables) # also works with 1 label for each set of 4 datapoints
-    else:
-        ax.set_xticklabels(range(len(start)//4)) # else assigns pythonic numbering to datapoints
-    ax.set_title(f'{title+" "*bool(title)}rc: Cl- ("{c_Cl}"), H ("{c_H}")'+((', S ("'+c_S+'")') if Sdep else "")+f', other ("{c_default}")')
-    ax.set_yscale("symlog")
-    ax.set_ylim(min(start)-abs(min(start)), max(start)*1.5)
-    ax.set_xlim(-1.5, len(start)+.5)
-    if save: plt.savefig(savedir+"paramplot.png", bbox_inches='tight')
-    if not store: plt.show()
-
-
-def rainbow2(n,total=0):
-    """Generates <total> number of equidistant colours from 'gist_rainbow' cmap for each unique value in <n>, "k" for floats.
-    Automatically sets unspeficied <total> to match plural <n>. Entering a single <n> defaults <total> of 10.
-    Allows later iterants returning same values if <n> exceeds manually set <total>."""
-    import matplotlib.pyplot as plt
-    rainbow=plt.get_cmap('gist_rainbow')
-    if isinstance(n, (float, int)): # ensures n is iterable
-        n=[n]
-    if not isinstance(total, (float, int)): # ensures plural total becomes len()
-        total=len(total)
-    if total==0:
-        if len(set(n))>1: # sets unspecified total to highest value needed for n,
-            total=max(max(n)+1,len(set(n)))
-        else: # or sets unspecified total to 10 for singular n
-            total=10
-    # colours=[rainbow((1/(total+1))*i) for i in range(total+2)][1:-1] # generates colours
-    # colours=rainbow(np.linspace(1/(2*total), 1-1/(2*total), total))
-    colours=[rainbow((2*x + 1)/(2*total)) for x in range(total)]
-    if len(n)==1:
-        return ["k" if isinstance(n[0],float) else colours[min(n[0],total-1)]][0] # returns single colour value for single n,
-    return ["k" if isinstance(i,float) else colours[min(i,total-1)] for i in n] # or returns list with value for each n
-#for i in range(10+5): plt.plot(i,i,"o",c=rainbow2(i)); print(rainbow2(15))
-
-
 def startcalc(start, model):#,variables    #for i in range(len(start)):exec(variables[i]=start[i])
     """Calculates variables in start, following microscopic reversibility."""
     if model=="GlutWT0":
@@ -353,8 +231,6 @@ def startcalc(start, model):#,variables    #for i in range(len(start)):exec(vari
     else:
         raise Exception(f'Warning, model {model} not in trimmed version of startcalc!')
     return list(start)
-
-
 def loaddata(protein="GlutWT"):
     if protein=="GlutWT":
         datasets=[
@@ -406,8 +282,6 @@ def loaddata(protein="GlutWT"):
 
     else:
         print("Can only load proteins GlutWT and AspWT")
-
-
 ###############################################################################
 def GlutWT0_transitionmatrix(k11,k12,z1,d1,k21,k22,z2,d2,k31,k32,z3,d3,k41,k42,z4,d4,k51,k52,z5,d5,k61,k62,z6,d6,k71,k72,z7,d7,k81,k82,z8,d8,k91,k92,z9,d9,ka1,ka2,za,da,kb1,kb2,zb,db,kc1,kc2,zc,dc,kd1,kd2,zd,dd,ke1,ke2,ze,de,kf1,kf2,zf,df,kg1,kg2,zg,dg,kh1,kh2,zh,dh,ki1,ki2,zi,di,kj1,kj2,zj,dj,kk1,kk2,zk,dk,kl1,kl2,zl,dl,km1,km2,zm,dm,kn1,kn2,zn,dn,ko1,ko2,zo,do,kp1,kp2,zp,dp,kq1,kq2,zq,dq,kr1,kr2,zr,dr,
     phex,phint,Clex,Clint,V, # external pH, internal pH, external [Cl-], internal [Cl-], membrane V

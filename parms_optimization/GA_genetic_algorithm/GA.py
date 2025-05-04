@@ -2,10 +2,31 @@ mode=( # 0:optimization via genetic fit algorithm, 1:details, 2:state distributi
 1
 )
 modelfile="GA_model"
-from GA_model import modelselect, loaddata, startcalc, initialvalue, simulate, gatingcurrent, stationarycurrent, fluxstates3
-import sys; from copy import deepcopy; from deap import base, creator, tools; from random import random; import inspect; import numpy as np; from math import inf; import pickle as pkl; import multiprocessing; import warnings; from scipy.linalg import LinAlgWarning; from datetime import datetime; import matplotlib.pyplot as plt;
+import argparse
+from GA_model import modelselect, loaddata, startcalc, initialvalue, simulate, gatingcurrent, stationarycurrent
+import sys
+from copy import deepcopy
+from deap import base, creator, tools
+from random import random
+import inspect
+import numpy as np
+from math import inf
+import pickle as pkl
+import multiprocessing
+import warnings
+from scipy.linalg import LinAlgWarning
+from datetime import datetime
 np.set_printoptions(legacy='1.25')
 
+def selectmodel(start, MODELS): # selects internal model format
+    model=[int(MODELS[x]["ID"]) for x in MODELS.keys() if len(start)==MODELS[x]["g_len"]+MODELS[x]["a_len"]-MODELS[x]["samelen"]]
+    if model==[]:
+        raise FileNotFoundError
+    else:
+        model=model[0]
+
+    ID, samelen, g_len, a_len, slowones, clapp, start0=[MODELS[model][x] for x in ["ID","samelen","g_len","a_len","slowones","clapp","start0"]]
+    return (model, ID, samelen, g_len, a_len, slowones, clapp, start0)
 def evaluate(START, mode, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim,
         slowones, modelfile, ID, samelen, g_len, a_len, modelselect, alt=0, reference=[inf]*19):
     RETURN=[]
@@ -77,10 +98,6 @@ def evaluate(START, mode, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim,
                     sweep[2]=gatingcurrent(step0, sim2, start, flux)
 
                 sweep*=(Imax/subnormer)
-
-                if mode==3 and V==0:
-                    fluxstates3(A0=[step0,step1,step0], y0=[sim0,sim1,sim2], freq=freq, states=states, tsteps=tsteps, flux=flux, experiment=experiment, svg_or_png=1, label=1, full=0,\
-                        focus=[x for x in flux if (states[x[1]]+states[x[2]]).count("Cl")==1], show=show, save=save)
 
                 if experiment=="WTintGlut40Cl_pH55":
                     e0=(sweep[0][tsteps[1]-tsteps[0]:]-data[V][tsteps[1]:tsteps[2]])
@@ -269,33 +286,32 @@ def evaluate(START, mode, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim,
 if __name__ == '__main__':
     "Running with a non-empty <from_parameter_set> below will simulate from it, rather than opening the <version> file below"
     from_parameter_set=[]#+optimized_parameter_set
-    if sys.argv==[""] or 0: # activates when run in script editor, change 0 to nonzero to use <version> file below in console as well
-        version=1000#1234 #
-        resume=0; fromfile=0; argv_args=[]
-    else: #      ^- manual version select outside of console, Ctrl+F6 to switch
-        resume=0
-        if len(sys.argv)<2: sys.exit('Run as "python GA.py <version>" (mode=<mode> or other keywords)')
-        version = sys.argv[1]
-        del sys.argv[1]
 
-        if len(version)>3 and "." in version:
-            fromfile=version; version=int(version.split(".")[0])
-        else:
-            fromfile=0; version=int(version)
-    VERSION=str(version).zfill(4)
-
-    save_index_in_file = 0-1 # choose to continue from (0: first/oldest, or) -1: last/newest entry in file
-    cluster            = 0 # enable cluster for multiprocessing
-    NPROCESSES         = [2, 128][cluster] # extend of multiprocessing
-    pop_size           = [50, 1000][cluster] # population size
-    checkpoint         = 500 # how many generations pass between saving progress
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-name',default='Cl_sym_output',type=str,help='Output file name')
+    parser.add_argument('-id',default=0,type=int,help='Output ID')
+    parser.add_argument('-nprocesses',default=1,type=int,help='Number of parallel processes to run')
+    parser.add_argument('-pop_size',default=50,type=int,help='Population of each generation')
+    parser.add_argument('-ngen',default=1000,type=int,help='Number of generations')
+    parser.add_argument('-cxpb',default=0.7,type=float,help='Crossover rate')
+    parser.add_argument('-mutpb',default=0.5,type=float,help='Mutation rate')
+    parser.add_argument('-checkpoint',default=10,type=int,help='Frequency of data saving in number of generations')
+    args = parser.parse_args()
+    mode = 0
+    NPROCESSES         = args.nprocesses # extend of multiprocessing
+    pop_size           = args.pop_size # population size
+    checkpoint         = args.checkpoint # how many generations pass between saving progress
+    version            = args.id
+    CXPB               = args.cxpb
+    MUTPB              = args.mutpb
+    NGEN               = args.ngen
     sigroller          = 0 # used to rotate through different values for sigma below
     slowsigs           = [1, .75, .66, .5, .33, .25, .1, .05, .005, .001][6:] # factor by which sigma is reduced
     no_Asp             = 0 # disable the Aspartate component of the model
     MODEL              = 0 # in case of multiple accessible models
-    show               = 0 # plot settings
-    save               = 1 # plot settings
 
+    VERSION=str(version).zfill(4)
+    fromfile=0
     A="""2687280566.8554854_WTintGlut40Cl_pH55
     124764969.72033526_WTintGlut40Cl_pH5
     2088197643914.9985_WTintGlut40Cl_pH5App
@@ -334,45 +350,7 @@ if __name__ == '__main__':
     warnings.filterwarnings("ignore", category=RuntimeWarning)
     warnings.filterwarnings(action='ignore', category=LinAlgWarning)
 
-    if len(sys.argv)>1:
-        args = dict(arg.split('=', 1) for arg in sys.argv[1:]) # allows console kwargs to override variables
-        for key, value in args.items():
-            if key in globals():
-                globals()[key] = int(value) if value.isdigit() else value # update variables received through argv
-                print(f'passed with argument {key}={value}')
 
-    ###########################################################################
-    if mode==-3: # fuse SimVarGen files
-        OVERWRITE=0+1
-        nr=version#"9999"
-        SimVarGen0=[]
-        for part in range(15):
-            try:
-                with open(f'SimVarGen{nr}{part}.pkl', "rb") as out:
-                    test=pkl.load(out)
-                SimVarGen0.extend(test)
-            except FileNotFoundError: break
-        minlen=[len(set(col)) for col in zip(*SimVarGen0)]
-
-        unduped=[]
-        for variableset in SimVarGen0:
-            if variableset not in unduped:
-                unduped.append(variableset)
-        print(f'{len(SimVarGen0)} reduced to {len(unduped)} uniqes, lowest={minlen.count(min(minlen))}x{min(minlen)}')
-        with open(f'SimVarGen{nr}{["_"+"".join(map(str, range(part-1))), "0"][OVERWRITE]}.pkl', "wb") as out:
-            pkl.dump(unduped, out)
-        sys.exit()
-    ###########################################################################
-
-    def selectmodel(start, MODELS): # selects internal model format
-        model=[int(MODELS[x]["ID"]) for x in MODELS.keys() if len(start)==MODELS[x]["g_len"]+MODELS[x]["a_len"]-MODELS[x]["samelen"]]
-        if model==[]:
-            raise FileNotFoundError
-        else:
-            model=model[0]
-
-        ID, samelen, g_len, a_len, slowones, clapp, start0=[MODELS[model][x] for x in ["ID","samelen","g_len","a_len","slowones","clapp","start0"]]
-        return (model, ID, samelen, g_len, a_len, slowones, clapp, start0)
 
     for (protein,model) in [["GlutWT"]*2, ["AspWT"]*2]:
         exec(f'from {protein}_measurements import *')
@@ -388,7 +366,7 @@ if __name__ == '__main__':
         try:
             with open(VERSION+filename, "rb") as out:
                 gen_errs=pkl.load(out)
-            (lastgen,lastrmsd),lastweights,START=gen_errs[save_index_in_file] # -1 by default
+            (lastgen,lastrmsd),lastweights,START=gen_errs[-1] # -1 by default
             resumegen=[0,lastgen][resume]
             MODEL, ID, samelen, g_len, a_len, slowones, clapp, start0=selectmodel(START, MODELS)
 
@@ -527,7 +505,6 @@ if __name__ == '__main__':
                  chargelim=chargelim, slowlim=slowlim, fastlim=fastlim, slowones=slowones, modelfile=modelfile,
                  ID=ID, samelen=samelen, g_len=g_len, a_len=a_len, modelselect=modelselect, reference=reference)
         pop = toolbox.population(n=pop_size) # population size
-        CXPB, MUTPB, NGEN = 0.7, 0.5, 100000000 # crossover rate, mutation rate, generations
 
         for i in range(pop_size):
             pop[i][:]=START
@@ -563,7 +540,7 @@ if __name__ == '__main__':
 
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
 
-            if cluster:
+            if NPROCESSES > 1:
                 pool = multiprocessing.Pool(processes=NPROCESSES)
                 toolbox.register("map", pool.map)
                 fitnesses = list(toolbox.map(toolbox.evaluate, invalid_ind))
