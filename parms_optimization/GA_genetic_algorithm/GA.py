@@ -1,8 +1,6 @@
-mode=( # 0:optimization via genetic fit algorithm, 1:details, 2:state distribution, 3:flux, 4:test optimization without starting it, 5:manual save, 6:worsenfactor, -1:VariantGen, -2:VarGen compile, -3:rangecheck
-1
-)
-modelfile="GA_model"
+modelfile='GA_model'
 import argparse
+from GA_weights import weights
 from GA_model import modelselect, loaddata, startcalc, initialvalue, simulate, gatingcurrent, stationarycurrent
 import sys
 from copy import deepcopy
@@ -18,6 +16,7 @@ from scipy.linalg import LinAlgWarning
 from datetime import datetime
 np.set_printoptions(legacy='1.25')
 
+start0=[1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1, 1, 0, 0.5, 1, 1, 0, 0.5]+[1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 0, 0.5, 1000, 1000, 0, 0.5]
 def selectmodel(start, MODELS): # selects internal model format
     model=[int(MODELS[x]["ID"]) for x in MODELS.keys() if len(start)==MODELS[x]["g_len"]+MODELS[x]["a_len"]-MODELS[x]["samelen"]]
     if model==[]:
@@ -27,7 +26,7 @@ def selectmodel(start, MODELS): # selects internal model format
 
     ID, samelen, g_len, a_len, slowones, clapp, start0=[MODELS[model][x] for x in ["ID","samelen","g_len","a_len","slowones","clapp","start0"]]
     return (model, ID, samelen, g_len, a_len, slowones, clapp, start0)
-def evaluate(START, mode, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim,
+def evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim,
         slowones, modelfile, ID, samelen, g_len, a_len, modelselect, alt=0, reference=[inf]*19):
     RETURN=[]
     OUTTEXT={"GlutWT":{}, "AspWT":{}}
@@ -288,7 +287,7 @@ if __name__ == '__main__':
     from_parameter_set=[]#+optimized_parameter_set
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-name',default='Cl_sym_output',type=str,help='Output file name')
+    parser.add_argument('-name',default='GA_sym_output',type=str,help='Output file name')
     parser.add_argument('-id',default=0,type=int,help='Output ID')
     parser.add_argument('-nprocesses',default=1,type=int,help='Number of parallel processes to run')
     parser.add_argument('-pop_size',default=50,type=int,help='Population of each generation')
@@ -305,6 +304,11 @@ if __name__ == '__main__':
     CXPB               = args.cxpb
     MUTPB              = args.mutpb
     NGEN               = args.ngen
+    filename           = args.name 
+    slowlim            = 10000 # upper limit for slower (conformation) transitions
+    fastlim            = 5e9 # upper limit for faster (ligand assocating) transitions
+    chargelim          = 1 # limit to charge movement/electrogeneity
+    transportrate      = [-561*2, (-561*2)*2.3] # Glut, Asp
     sigroller          = 0 # used to rotate through different values for sigma below
     slowsigs           = [1, .75, .66, .5, .33, .25, .1, .05, .005, .001][6:] # factor by which sigma is reduced
     no_Asp             = 0 # disable the Aspartate component of the model
@@ -331,20 +335,12 @@ if __name__ == '__main__':
     worsenfactor=1.*0
     WFA=[errs,worsenfactor]
 
-    start0=[1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1, 1, 0, 0.5, 1, 1, 0, 0.5]+[1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 0, 0.5, 1000, 1000, 0, 0.5]
     if from_parameter_set:
         start0=from_parameter_set
     MODELS={
     0:{"ID":"0", "samelen":52, "g_len":108, "a_len":108, "slowones":[100, 101, 104, 105], "clapp":"", "start0":start0},
     }
     ID, samelen, g_len, a_len, slowones, clapp, start0=[MODELS[MODEL][x] for x in ["ID","samelen","g_len","a_len","slowones","clapp","start0"]]
-
-    slowlim=10000 # upper limit for slower (conformation) transitions
-    fastlim=5e9 # upper limit for faster (ligand assocating) transitions
-    chargelim=1 # limit to charge movement/electrogeneity
-    transportrate=[-561*2, (-561*2)*2.3] # Glut, Asp
-    filename="GA_sym_output" # models from GA_models
-    moredata="outtext"
 
     autoH=[0, 1e8][1] # automatically increases rates in this category to given nonzero number
     warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -355,7 +351,6 @@ if __name__ == '__main__':
     for (protein,model) in [["GlutWT"]*2, ["AspWT"]*2]:
         exec(f'from {protein}_measurements import *')
 
-    from GA_weights import weights
 
     lastgen=resumegen=0
 
@@ -464,7 +459,7 @@ if __name__ == '__main__':
     START=STARTcalc(START, ID, samelen, g_len, a_len, startcalc)
     if mode >0:
         try:
-            err,outtext=evaluate(START, mode, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+            err,outtext=evaluate(START, mode, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
         except ValueError:
             if mode not in [2,3,6]:
                 sys.exit("Invalid START.")
@@ -477,96 +472,95 @@ if __name__ == '__main__':
                 pkl.dump(gen_errs, out)
             print(f'Parameters saved to {version}GA_sym_output.')
 
-    elif mode in [-2, 0]:
-        check=evaluate(START, 0, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
-        if inf not in check:#np.isfinite(check):
-            olderfitness,outtext=evaluate(START, 1, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
-        else:
-            test=evaluate(START, 1, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
-            if "*" in test:
-                evaluate(START, 3, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
-            sys.exit("Initial simulation is invalid, interrupting.")
+    check=evaluate(START, 0, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+    if inf not in check:#np.isfinite(check):
+        olderfitness,outtext=evaluate(START, 1, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+    else:
+        test=evaluate(START, 1, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+        if "*" in test:
+            evaluate(START, 3, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+        sys.exit("Initial simulation is invalid, interrupting.")
 
-        if resume==0:
-            gen_errs=[[[0, olderfitness], deepcopy(weights), START]]
-        SIG=sigcalc(START, SIG0, LIMRANGE, slowsigs[0])
-        creator.create("FitnessMin", base.Fitness, weights=(-1.0, ))
-        creator.create("Individual", list, fitness=creator.FitnessMin)
-        toolbox = base.Toolbox()
-        toolbox.register("attribute", random)
-        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attribute, n=len(START))
-        toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-        toolbox.register("mate", tools.cxTwoPoint)
+    if resume==0:
+        gen_errs=[[[0, olderfitness], deepcopy(weights), START]]
+    SIG=sigcalc(START, SIG0, LIMRANGE, slowsigs[0])
+    creator.create("FitnessMin", base.Fitness, weights=(-1.0, ))
+    creator.create("Individual", list, fitness=creator.FitnessMin)
+    toolbox = base.Toolbox()
+    toolbox.register("attribute", random)
+    toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attribute, n=len(START))
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    toolbox.register("mate", tools.cxTwoPoint)
+    toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=SIG, indpb=0.5)
+    toolbox.register("select", tools.selTournament, tournsize=3)
+    if mode==0: reference=[inf]*19
+
+    toolbox.register("evaluate", evaluate, mode=mode, WFA=WFA, loadin=loadin, autoH=autoH,
+             chargelim=chargelim, slowlim=slowlim, fastlim=fastlim, slowones=slowones, modelfile=modelfile,
+             ID=ID, samelen=samelen, g_len=g_len, a_len=a_len, modelselect=modelselect, reference=reference)
+    pop = toolbox.population(n=pop_size) # population size
+
+    for i in range(pop_size):
+        pop[i][:]=START
+
+    oldfitness=inf; savedfitness=inf
+    fittest=START
+    print(f'Gen {resumegen}, err {olderfitness}')
+    counter=newfile=0
+    reweight=[]
+    for gen in range(NGEN)[:]:
+        gen+=(lastgen*resume)
+
+        if mode==0:
+            slowsig=slowsigs[sigroller%len(slowsigs)]
+            SIG=sigcalc(START, SIG0, LIMRANGE, slowsig)
+
         toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=SIG, indpb=0.5)
-        toolbox.register("select", tools.selTournament, tournsize=3)
-        if mode==0: reference=[inf]*19
 
-        toolbox.register("evaluate", evaluate, mode=mode, WFG=WFG, WFA=WFA, loadin=loadin, autoH=autoH,
-                 chargelim=chargelim, slowlim=slowlim, fastlim=fastlim, slowones=slowones, modelfile=modelfile,
-                 ID=ID, samelen=samelen, g_len=g_len, a_len=a_len, modelselect=modelselect, reference=reference)
-        pop = toolbox.population(n=pop_size) # population size
+        offspring = toolbox.select(pop, len(pop))
 
-        for i in range(pop_size):
-            pop[i][:]=START
+        offspring = list(map(toolbox.clone, offspring))
 
-        oldfitness=inf; savedfitness=inf
-        fittest=START
-        print(f'Gen {resumegen}, err {olderfitness}')
-        counter=newfile=0
-        reweight=[]
-        for gen in range(NGEN)[:]:
-            gen+=(lastgen*resume)
+        for child1, child2 in zip(offspring[::2], offspring[1::2]):
+            if random() < CXPB:
+                toolbox.mate(child1, child2)
+                del child1.fitness.values
+                del child2.fitness.values
 
-            if mode==0:
-                slowsig=slowsigs[sigroller%len(slowsigs)]
-                SIG=sigcalc(START, SIG0, LIMRANGE, slowsig)
+        for mutant in offspring:
+            if random() < MUTPB:
+                toolbox.mutate(mutant)
+                del mutant.fitness.values
 
-            toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=SIG, indpb=0.5)
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
 
-            offspring = toolbox.select(pop, len(pop))
+        if NPROCESSES > 1:
+            pool = multiprocessing.Pool(processes=NPROCESSES)
+            toolbox.register("map", pool.map)
+            fitnesses = list(toolbox.map(toolbox.evaluate, invalid_ind))
+        else:
+            fitnesses = list(toolbox.map(toolbox.evaluate, invalid_ind))
 
-            offspring = list(map(toolbox.clone, offspring))
+        for ind, fit in zip(invalid_ind, fitnesses):
+            ind.fitness.values = fit
+        newfitness=min(fitnesses)[0]
 
-            for child1, child2 in zip(offspring[::2], offspring[1::2]):
-                if random() < CXPB:
-                    toolbox.mate(child1, child2)
-                    del child1.fitness.values
-                    del child2.fitness.values
+        if np.isfinite(newfitness) and newfitness<=1.0*oldfitness:
+            pop[:] = offspring
+            oldfitness=newfitness
 
-            for mutant in offspring:
-                if random() < MUTPB:
-                    toolbox.mutate(mutant)
-                    del mutant.fitness.values
+            fitnesses = list(toolbox.map(toolbox.evaluate, offspring))
+            fittest0=offspring[np.argmin(fitnesses)]
 
-            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            fittest=STARTcalc(fittest0, ID, samelen, g_len, a_len, startcalc)
+            if min(fittest[:(g_len if not a_len else None)])<-1:
+                sys.exit("Gen",gen,"warning, interrupting because bounds are not applied:", min(fittest))
 
-            if NPROCESSES > 1:
-                pool = multiprocessing.Pool(processes=NPROCESSES)
-                toolbox.register("map", pool.map)
-                fitnesses = list(toolbox.map(toolbox.evaluate, invalid_ind))
-            else:
-                fitnesses = list(toolbox.map(toolbox.evaluate, invalid_ind))
-
-            for ind, fit in zip(invalid_ind, fitnesses):
-                ind.fitness.values = fit
-            newfitness=min(fitnesses)[0]
-
-            if np.isfinite(newfitness) and newfitness<=1.0*oldfitness:
-                pop[:] = offspring
-                oldfitness=newfitness
-
-                fitnesses = list(toolbox.map(toolbox.evaluate, offspring))
-                fittest0=offspring[np.argmin(fitnesses)]
-
-                fittest=STARTcalc(fittest0, ID, samelen, g_len, a_len, startcalc)
-                if min(fittest[:(g_len if not a_len else None)])<-1:
-                    sys.exit("Gen",gen,"warning, interrupting because bounds are not applied:", min(fittest))
-
-            if counter>=checkpoint and mode!=-2: ############################################### SimVarGen
-                err,outtext=evaluate(fittest, 1, WFG, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
-                gen_errs.append([[gen, err], deepcopy(weights), fittest])
-                with open(VERSION+filename, "wb") as out: # "wb" to write new, "rb" to read
-                    pkl.dump(gen_errs, out)
-                counter=0
-            counter+=1; sigroller+=1
-        print(f'Concluded at generation {gen+1}/{NGEN}.')
+        if counter>=checkpoint and mode!=-2: ############################################### SimVarGen
+            err,outtext=evaluate(fittest, 1, WFA, loadin, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, modelselect)
+            gen_errs.append([[gen, err], deepcopy(weights), fittest])
+            with open(VERSION+filename, "wb") as out: # "wb" to write new, "rb" to read
+                pkl.dump(gen_errs, out)
+            counter=0
+        counter+=1; sigroller+=1
+    print(f'Concluded at generation {gen+1}/{NGEN}.')
