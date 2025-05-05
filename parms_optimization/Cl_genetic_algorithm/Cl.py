@@ -5,7 +5,6 @@ import argparse
 from Cl_model import Cltransitionmatrix as transitionmatrix
 from Cl_model import modelselect, loaddata, initialvalue, simulate, normalized_anioncurrent, startcalc
 
-import os
 import sys
 from datetime import datetime
 import warnings
@@ -33,8 +32,6 @@ def evaluate(start, model="Cl", reference=[np.inf]*19):
                 out.write(experiment+" = [\n"); np.set_printoptions(threshold=np.inf)
 
         data = experimental_data[experiment]
-        #data=eval(experiment)
-        iterable_Vs=Vs[-1] # selects list of variable Vs when there's also a stationary segment
         length=tsteps[-1]
         t=np.arange(length)/freq # total timespan
         errprint=err
@@ -93,14 +90,14 @@ def evaluate(start, model="Cl", reference=[np.inf]*19):
 
             elif experiment=="WTintClpH5_40ClApp":
                 err=err+1e2*sum((sweep[0][tsteps[1]-tsteps[0]:]-data[V][tsteps[1]:tsteps[2]])**2)
-                err=err+1e5*sum((sweep[1]-data[V][tsteps[3]:tsteps[4]])**2)# *((4-V)*4)**2
-                err=err+1e5*sum((sweep[2]-data[V][tsteps[5]:tsteps[6]])**2)# *((V+1)*4)**2
+                err=err+1e5*sum((sweep[1]-data[V][tsteps[3]:tsteps[4]])**2)
+                err=err+1e5*sum((sweep[2]-data[V][tsteps[5]:tsteps[6]])**2)
                 weirdpeaks*=max(sweep[2]/sweep[2][0])
 
             elif experiment=="WTintClpH5_140ClApp":
                 err=err+1e2*sum((sweep[0][tsteps[1]-tsteps[0]:]-data[V][tsteps[1]:tsteps[2]])**2)
                 err=err+5e5*sum((sweep[1]-data[V][tsteps[3]:tsteps[4]])**2)
-                err=err+5e5*sum((sweep[2]-data[V][tsteps[5]:tsteps[6]])**2) #*((V+1)*1)**2
+                err=err+5e5*sum((sweep[2]-data[V][tsteps[5]:tsteps[6]])**2)
                 weirdpeaks*=max(sweep[2]/sweep[2][0])
 
             elif experiment=="WTintCl140Cl_pH55App":
@@ -132,15 +129,13 @@ def evaluate(start, model="Cl", reference=[np.inf]*19):
         errprint=err
         err=err+1e11*(weirdpeaks-1)**2
 
-    errprint=err; 
-    deptypes=[np.argmax([len(deps[key]["pHs"]),len(deps[key]["Cls"]),len(deps[key]["Vs"])]) for key in deps]+["end"]
+    errprint=err;
     for i,key in enumerate(deps):
         dep=deps[key]
-        Cls=dep["Cls"]; x=Cls; pHs=dep["pHs"]
+        Cls=dep["Cls"]; pHs=dep["pHs"]
         Vs=dep["Vs"]
         data=dep["data"]
         CIs=dep["CIs"]
-        deptype=deptypes[i]
         ys0=[]
         for Cl in Cls:
             for pH in pHs:
@@ -149,13 +144,12 @@ def evaluate(start, model="Cl", reference=[np.inf]*19):
                     AW=initialvalue(states,A)
                     ys0.append(sum([AW[i] for i in openstates]))
         ys0=np.asarray(ys0)
-        ys=ys0/ys0[data.index(1)]; shape="od*"
+        ys=ys0/ys0[data.index(1)]
         if Cls==[0]:
             Cl_fraction=deps["Cldep"]["data"][deps["Cldep"]["Cls"].index(0)]
             ys*=Cl_fraction
             data=np.array(data)*Cl_fraction
             CIs=np.array(CIs)*Cl_fraction
-        reshaper=i+deptype-1
 
         diffs=[abs(a) for a in ys-data]
         err=err+depweight[i]*(sum(diffs)**2)
@@ -370,7 +364,7 @@ if __name__ == '__main__':######################################################
                     writetype="a"
                 with open(f'{version:04d}{savefile}.txt', writetype) as out:
                     if g==checkpoints[0]:
-                        out.write(f'# gen\tx\tbestfitness\tbest parameters\n')
+                        out.write('# gen\tx\tbestfitness\tbest parameters\n')
                         out.write(f'{0}\t{0}\t{olderfitness[0]}\t{start}\n')
                     out.write(f'{g}\t{x}\t{bestfitness}\t{fittest}\n')
                 if running_updates:

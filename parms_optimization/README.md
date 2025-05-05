@@ -4,8 +4,8 @@ We provide the data and the script used to optimize the transition rates of the 
 **Cl_genetic_algorithm/Cl.py**
 
 Performs parameter optimization for a kinetic model describing VGLUT1 chloride channel function, for either the wild-type (`WT`) or the `H120A` mutant version of the protein.
-The script optimizes model parameters for the specified protein version using residual sum of squares. Results are saved using a version ID (e.g., `1234`), producing files like `1234Cl_sym_output.txt`, which is provided containing an optimized parameter set for the WT. Parameters corresponding to the best fit are saved whenever the generation number reaches a defined checkpoint (default: 1000).
-If the script is restarted, it will overwrite the output file at the first checkpoint, using the most recent parameter set from the previous run.
+The script optimizes model parameters for the specified protein version using residual sum of squares. 
+
 #### Inputs
 * Time course data are loaded from: `Cl_WT_measurements.pkl` and `Cl_H120A_measurements.pkl`
     The following experimental conditions were used for the recordings of the wild-type (WT) construct:
@@ -70,16 +70,15 @@ options:
 **GA_genetic_algorithm/GA.py**
 
 Performs parameter optimization and limited result visualization for a kinetic model describing active transport by VGLUT1, for glutamate and aspartate substrate in parallel.
-the script optimizes model parameters using residual sum of squares. Results are saved using a version ID (e.g., `1234`), producing files like `1234GA_sym_output`, which is provided containing an optimized parameter set. Parameters corresponding to the best fit are saved whenever the generation number reaches a defined checkpoint (default: 500).
+The script optimizes model parameters for the specified protein version using residual sum of squares. 
 
-If the script is restarted, it will overwrite the output file at the first checkpoint, using the most recent parameter set from the previous run.
 
 #### Inputs
 - Time course data are loaded from: `GlutWT_measurements.py` and `AspWT_measurements.py`
     The following experimental conditions were used for the recordings of the wild-type (WT) construct:
     ```
     The naming of each experimental condition is encoded as follows (refer to the manuscript for details):
-    Construct, internal [Cl], external [Cl], external pH, leak-subtracted version
+    Construct, conducted/internal anion, external [Cl], external pH, App (for application) when this condition activates current mid voltage pulse
     
     WT Glut dataset name:
 
@@ -89,15 +88,12 @@ If the script is restarted, it will overwrite the output file at the first check
     WTintGlutpH5_40ClApp
     WTintGlutpH55_140ClApp
     WTintGlutpH55_140ClApp2
-    WTintGlutpH55_140ClApp_leaksubtract
-    WTintGlutpH55_140ClApp2_leaksubtract
 
-    WT Asp dataset name
+    WT Asp dataset name:
 
     WTintAsp40Cl_pH5
     WTintAsp40Cl_pH5App
     WTintAsppH55_40ClApp
-    WTintAsppH55_40ClApp_leaksubtract
     ```
 - The model, time course conditions, and optimization functions are defined in: `GA_model.py`
 - Weighting factors for time course data and calculated metrics are loaded from: `GA_weights.py`

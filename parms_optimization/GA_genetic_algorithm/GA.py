@@ -1,5 +1,4 @@
 modelfile='GA_model'
-import importlib
 import argparse
 from GA_weights import weights
 from GA_model import modelselect, loaddata, startcalc, initialvalue, simulate, gatingcurrent, stationarycurrent,GlutWT0_transitionmatrix_args,AspWT0_transitionmatrix_args,GlutWT0_states,AspWT0_states,GlutWT0_transitionmatrix,AspWT0_transitionmatrix
@@ -7,14 +6,12 @@ import sys
 from copy import deepcopy
 from deap import base, creator, tools
 from random import random
-import inspect
 import numpy as np
 from math import inf
 import pickle as pkl
 import multiprocessing
 import warnings
 from scipy.linalg import LinAlgWarning
-from datetime import datetime
 np.set_printoptions(legacy='1.25')
 
 start0=[1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1, 1, 0, 0.5, 1, 1, 0, 0.5]+[1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, -1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 1, 0.5, 1000, 1000, 0, 0.5, 1000, 1000, 0, 0.5]
@@ -42,7 +39,6 @@ def evaluate(START, experimental_data,mode, autoH, chargelim, slowlim, fastlim,
         err=err2=0
         datasets, deps, start, model, Hdep, Cldep, Sdep, sig0, noVdep, flux, closingstates, states,\
             variables, limsmin, limsmax, errs, worsenfactor, transitionmatrix=loadin(START, protein, model, SUB, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len, alt)
-        datasets=[x for x in datasets if "_leaksubtract" not in x[0]]
 
         peakweight,clweight,phweight,transportweight,pkaweight=[weights[protein][x] for x in ["peakweight","clweight","phweight","transportweight","pkaweight"]]
         def peakweigh(sweep, err, multiplier=1, low=-.5, hi=1.25):
@@ -289,7 +285,7 @@ if __name__ == '__main__':
     CXPB               = args.cxpb
     MUTPB              = args.mutpb
     NGEN               = args.ngen
-    filename           = args.name 
+    filename           = args.name
     resume             = int(args.resume)
     slowlim            = 10000 # upper limit for slower (conformation) transitions
     fastlim            = 5e9 # upper limit for faster (ligand assocating) transitions
@@ -304,7 +300,7 @@ if __name__ == '__main__':
     fromfile=0
     errs = [np.inf] * 6
     worsenfactor = 0
-    inputfile=f'GlutWT_AspWT_measurements.pkl'
+    inputfile='GlutWT_AspWT_measurements.pkl'
     with open(inputfile,'rb') as f:
         experimental_data = pkl.load(f)
 
@@ -503,7 +499,7 @@ if __name__ == '__main__':
             if min(fittest[:(g_len if not a_len else None)])<-1:
                 sys.exit("Gen",gen,"warning, interrupting because bounds are not applied:", min(fittest))
 
-        if counter>=checkpoint and mode!=-2: 
+        if counter>=checkpoint and mode!=-2:
             err,outtext=evaluate(fittest,experimental_data, 1, autoH, chargelim, slowlim, fastlim, slowones, modelfile, ID, samelen, g_len, a_len)
             gen_errs.append([[gen, err], deepcopy(weights), fittest])
             with open(VERSION+filename, "wb") as out: # "wb" to write new, "rb" to read
