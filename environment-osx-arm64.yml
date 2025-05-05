@@ -1,10 +1,12 @@
 name: vglut
 channels:
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
   - bzip2=1.0.8=h99b78c6_7
-  - ca-certificates=2024.7.4=hf0a4a13_0
+  - ca-certificates=2025.4.26=hbd8a1cb_0
+  - deap=1.4.3=np20py312h4049357_0
   - libblas=3.9.0=23_osxarm64_openblas
   - libcblas=3.9.0=23_osxarm64_openblas
   - libcxx=18.1.8=h5a72898_4
@@ -19,7 +21,7 @@ dependencies:
   - llvm-openmp=18.1.8=hde57baf_1
   - ncurses=6.5=hb89a1cb_0
   - numpy=2.1.0=py312hb544834_0
-  - openssl=3.3.1=h8359307_3
+  - openssl=3.5.0=h81ee809_1
   - pip=24.2=pyhd8ed1ab_0
   - python=3.12.5=h30c5eda_0_cpython
   - python_abi=3.12=5_cp312
@@ -30,3 +32,4 @@ dependencies:
   - tzdata=2024a=h0c530f3_0
   - wheel=0.44.0=pyhd8ed1ab_0
   - xz=5.2.6=h57fd34a_0
+prefix: /Users/jmachtens/miniconda3/envs/vglut
