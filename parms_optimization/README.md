@@ -11,7 +11,7 @@ The script optimizes model parameters for the specified protein version using re
     The following experimental conditions were used for the recordings of the wild-type (WT) construct:
     ```
     The naming of each experimental condition is encoded as follows (refer to the manuscript for details):
-    Construct, internal [Cl], external [Cl], external pH, leak-subtracted version
+    Construct, conducted/internal anion, external [Cl], external pH, App (for application) when this condition activates current mid voltage pulse, deact (for deactivation) if voltage jumps reduce current after a prepulse, leak-subtracted version if recorded using a P/4 protocol
     
     WT Cl- dataset name:
     
@@ -26,9 +26,8 @@ The script optimizes model parameters for the specified protein version using re
     WTintCl0Cl_pHdep_50
     WTintCl0Cl_pHdep_55
     WTintCl_0Cl_pH55Vdeact_short
-    WT Cl- dataset name:
 
-    H120A Cl- dataset name
+    H120A Cl- dataset name:
 
     H120AintCl140Cl_pHdep_55
     H120AintCl140Cl_pH55Vdeact
