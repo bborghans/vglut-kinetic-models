@@ -198,7 +198,7 @@ if __name__ == '__main__':######################################################
     parser.add_argument('-protein',choices=['WT','H120A'],default='WT',help='Constructs available')
     parser.add_argument('-name',default='Cl_sym_output',type=str,help='Output file name')
     parser.add_argument('-id',default=0,type=int,help='Output ID')
-    parser.add_argument('-nprocesses',default=1,type=int,help='Number of parallel processes to run')
+    parser.add_argument('-nprocesses',default=1,type=int,help='Number of parallel processes to run. For Windows systems more than 1 processes is not supported')
     parser.add_argument('-pop_size',default=50,type=int,help='Population of each generation')
     parser.add_argument('-ngen',default=1000,type=int,help='Number of generations')
     parser.add_argument('-cxpb',default=0.7,type=float,help='Crossover rate')
@@ -214,7 +214,6 @@ if __name__ == '__main__':######################################################
         # background settings
         savefile   = args.name
         version    = args.id
-        cluster    = 1 # enable cluster for multiprocessing
         save_sim   = 0 # write simulated serial time course and pH/Cl dependence to file
         NPROCESSES = args.nprocesses
         pop_size   = args.pop_size
@@ -339,7 +338,7 @@ if __name__ == '__main__':######################################################
 
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
 
-            if cluster:
+            if NPROCESSES > 1:
                 pool = multiprocessing.Pool(processes=NPROCESSES)
                 toolbox.register("map", pool.map)
             fitnesses = list(toolbox.map(toolbox.evaluate, invalid_ind))

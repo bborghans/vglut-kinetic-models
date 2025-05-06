@@ -1,4 +1,4 @@
-name: vglut
+name: kinetic_models
 channels:
   - conda-forge
   - bioconda
@@ -32,4 +32,3 @@ dependencies:
   - tzdata=2024a=h0c530f3_0
   - wheel=0.44.0=pyhd8ed1ab_0
   - xz=5.2.6=h57fd34a_0
-prefix: /Users/jmachtens/miniconda3/envs/vglut
