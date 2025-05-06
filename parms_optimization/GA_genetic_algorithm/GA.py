@@ -268,7 +268,7 @@ if __name__ == '__main__':
     parser.add_argument('-name',default='GA_sym_output',type=str,help='Output file name')
     parser.add_argument('-id',default=0,type=int,help='Output ID')
     parser.add_argument('-protein',choices=['GlutWT','AspWT'],default='GlutWT',help='Constructs available')
-    parser.add_argument('-nprocesses',default=1,type=int,help='Number of parallel processes to run')
+    parser.add_argument('-nprocesses',default=1,type=int,help='Number of parallel processes to run. For Windows systems more than 1 processes is not supported')
     parser.add_argument('-pop_size',default=50,type=int,help='Population of each generation')
     parser.add_argument('-ngen',default=1000,type=int,help='Number of generations')
     parser.add_argument('-cxpb',default=0.7,type=float,help='Crossover rate')

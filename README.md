@@ -14,8 +14,8 @@ We provide kinetic models, including ensembles of parameters optimised against e
 We provide environment files for win-64, linux-64, and osx-arm64 platforms defining a conda environment with all the libraries required by the script.
 
 * Download and install, following the instructions,  [conda](https://docs.anaconda.com/miniconda/) (we recommend miniconda).
-* Create the environment through the following instruction (replace <your platform> with win-64, linux-64, or osx-arm64): `conda env create -f environment-<your platform>.yml --name vglut`
-* Activate the environment `conda activate vglut`
+* Create the environment through the following instruction (replace <your platform> with win-64, linux-64, or osx-arm64): `conda env create -f environment-<your platform>.yml --name kinetic_models`
+* Activate the environment `conda activate kinetic_models`
 
 # citation
 
