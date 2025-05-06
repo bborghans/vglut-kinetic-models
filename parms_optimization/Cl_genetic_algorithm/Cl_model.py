@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.integrate import odeint
-from os import path
 # import scipy; from scipy import *; from pylab import *; import math; from scipy.optimize import curve_fit; from scipy.optimize import minimize; from random import *; import os.path; import time
 
 elec=1.602176565e-7#Elementarladung in pC
@@ -353,28 +352,6 @@ def altCltransitionmatrix(k11,k12,z1,d1,k21,k22,z2,d2,k31,k32,z3,d3,k41,k42,z4,d
     return A
 ##################################################################################################################################################################################################################################################################################################
 
-def formatstart(start, model, variables=[]):
-    start=startcalc(start,model)
-    row=""
-    for i in range(len(start)):
-        if i%4==0 and variables:
-            print(variables[i][1], end=" ")
-        value=[]
-        if start[i]>=1e8:                             value="{:.2e}".format(start[i])
-        if start[i]>=1e6 and start[i]<1e8:            value=int(round(start[i]))
-        if start[i]<1e6 and abs(start[i])>1:          value=round(start[i],6-len(str(start[i]).split(".")[0]))
-        if abs(start[i])<=1 and abs(start[i])>=.0001: value=round(start[i],5)
-        if abs(start[i])<.0001:                       value="{:.1e}".format(start[i])
-        value=str(value)
-        if len(value)<8:
-            val=value
-            value=" "*(8-len(val))
-            value=str(val)+value
-        row+=value+" "
-        if i in np.arange(0,len(start),4)+3:print (row);row=""
-    print(row)
-
-
 def loaddata(protein="WT"):
     if protein=="WT":
         datasets=[
@@ -419,11 +396,11 @@ def loaddata(protein="WT"):
         ["H120AintCl140ClpH60",             [6.,7.5,.14,.14,0],None,[[-.16+.01*x for x in range(20)][:6]],[1000,1060,31000,32000],100000.,[-1100,-1000]],#13000
         ["H120AintClpH5_140ClApp",          [5,7.4,0,.14,0],[5,7.4,.14,.14],[[-.16+i*.02 for i in range(9)][:4]],[252,310,2000, 2000, 3460, 3460, 5060, 5060],20000.,[3410,3460]],
 
-        ["H120AintCl140Cl_pH55App",          [7.5,7.5,.140,.14,0],[5.5,7.5,.140,.14],[[-.16+i*.02 for i in range(9)][:4]],[325,325,2120, 2120, 3520, 3520, 5070, 5070],20000.,[3470,3520]],
+        ["H120AintCl140Cl_pH55App",         [7.5,7.5,.140,.14,0],[5.5,7.5,.140,.14],[[-.16+i*.02 for i in range(9)][:4]],[325,325,2120, 2120, 3520, 3520, 5070, 5070],20000.,[3470,3520]],
 
         ["H120AintCl0Cl_pH5App",            [7.4,7.4,.0,.14,0],[5.,7.4,.0,.14],[[-.16+.02*x for x in range(8)][:4]],[252,310,2120, 2120, 3780, 3780, 5440, 5440],20000.,[3730,3780]],
 
-        ["H120AintCl_0Cl_pH55leaksubtract",  [5.5,7.4,.0,.14,0],None,[np.array([-.16+.01*x for x in range(8)][2:8])-.026],[0,50,14960,14960],100000.,[-1100,-1000]],
+        ["H120AintCl_0Cl_pH55leaksubtract", [5.5,7.4,.0,.14,0],None,[np.array([-.16+.01*x for x in range(8)][2:8])-.026],[0,50,14960,14960],100000.,[-1100,-1000]],
         ["H120AintCl_0Cl_pH55Vdeact",       [5.5,7.5,.0,.14,0],[5.5,7.5,.0,.14],[[-.16-.026],np.array([-.14+.02*x for x in range(13)][:5])-.026],[500,550,15500,15550,17500,17500],100000.,[17400,17500]],
         ]
 
