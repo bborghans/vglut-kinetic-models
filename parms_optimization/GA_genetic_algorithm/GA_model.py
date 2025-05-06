@@ -103,48 +103,6 @@ def modelselect(start, model=None, whatsfast=3):
     return model, Hdep, Cldep, Sdep, sig0, noVdep, connections, closingstates
 
 
-def dicts(data, full=0, indent=["    ", "\t"][1]):
-    """Returns name, type, and shape or value for the contents of each key in a dictionary.
-    Shows all objects in dictionary when full!=0. Indent is tab by default, can be changed."""
-    if not full:
-        for key, value in data.items():
-            TYPE=type(value).__name__
-            print(f"{indent}{key}: {TYPE if TYPE!='dict' else ''}", end='')
-            if isinstance(value, dict):
-                print()
-                dicts(value, full=0, indent=indent+"    ")
-            elif isinstance(value, (list, tuple)):
-                if len(value) > 0 and isinstance(value[0], dict):
-                    print()
-                    dicts(value[0], full=0, indent=indent+"    ")
-                else:
-                    try:
-                        print(f" {np.shape(value)}")
-                    except ValueError:
-                        print(f" {len(value)}")
-            elif isinstance(value, (np.ndarray)):
-                print(f" {np.shape(value)}")
-            elif isinstance(value, (str,int,float)):
-                print(f" ({value})")
-            else:
-                print()
-    else: # full
-        for key, value in data.items():
-            print(f"{indent}{key}:\t", end='')
-            if isinstance(value, dict):
-                print()
-                dicts(value, full=1, indent=indent+"    ")
-            elif isinstance(value, (list, tuple)):
-                if len(value) > 0 and isinstance(value[0], dict):
-                    print()
-                    dicts(value[0], full=1, indent=indent+"    ")
-                else:
-                    try:
-                        print(f" {value}")
-                    except ValueError:
-                        print(f" {value}")
-            else:
-                print(f" {value}")
 def startcalc(start, model):#,variables    #for i in range(len(start)):exec(variables[i]=start[i])
     """Calculates variables in start, following microscopic reversibility."""
     if model=="GlutWT0":
@@ -242,8 +200,6 @@ def loaddata(protein="GlutWT"):
         ["WTintGlutpH5_40ClApp",    [5.,7.4, 0,.14, -.05], [5.,7.4, .04,.14], [[-.16+.02*x for x in range(5)][:4]], [252,400,620, 620, 1420, 1420, 2220, 2220], 20000, [1370,1420]],
         ["WTintGlutpH55_140ClApp",  [5.5,7.4, 0,.14, -.05], [5.5,7.4, .14,.14], [[-.134+.02*x for x in range(5)][:4]], [252,350,600, 600, 1350, 1350, 1830, 1830][:6], 20000, [1300,1350]],#
         ["WTintGlutpH55_140ClApp2", [5.5,7.4, .14,.14, -.05], [5.5,7.4, 0,.14], [[-.186+.02*x for x in range(5)][:4]], [600, 600, 1350, 1350, 1830, 1830], 20000, [1300,1350]],
-        ["WTintGlutpH55_140ClApp_leaksubtract",   [5.5,7.4, 0,.14, -.05], [5.5,7.4, .14,.14], [[-.134+.02*x for x in range(5)][:4]], [252,350,600, 600, 1350, 1350, 1830, 1830][:6], 20000, [1300,1350]],#
-        ["WTintGlutpH55_140ClApp2_leaksubtract",  [5.5,7.4, .14,.14, -.05], [5.5,7.4, 0,.14], [[-.186+.02*x for x in range(5)][:4]], [600, 600, 1350, 1350, 1830, 1830], 20000, [1300,1350]],
         ]
 
         deps=dict(
@@ -265,7 +221,6 @@ def loaddata(protein="GlutWT"):
         ["WTintAsp40Cl_pH5App",  [7.4,7.4, .04,.14, -.05], [5.,7.4, .04,.14], [[-.16+.02*x for x in range(5)][:4]], [252, 650, 1320, 1320, 2120, 2120, 2870, 2870], 20000, [2070,2120]],
 
         ["WTintAsppH55_40ClApp", [5.5, 7.4, 0, .14, -.05], [5.5, 7.4, .04, .14], [[-.12, -.10]], [0, 50, 199, 199, 2199, 2199, 4199, 4199], 4000, [2189,2199]],
-        ["WTintAsppH55_40ClApp_leaksubtract",[5.5, 7.4, 0, .14, -.05], [5.5, 7.4, .04, .14], [[-.12, -.10]], [0, 50, 199, 199, 2199, 2199, 4199, 4199], 4000, [2189,2199]],
         ]
 
         deps=dict(
@@ -285,7 +240,7 @@ def loaddata(protein="GlutWT"):
 ###############################################################################
 GlutWT0_transitionmatrix_args = ['k11','k12','z1','d1','k21','k22','z2','d2','k31','k32','z3','d3','k41','k42','z4','d4','k51','k52','z5','d5','k61','k62','z6','d6','k71','k72','z7','d7','k81','k82','z8','d8','k91','k92','z9','d9','ka1','ka2','za','da','kb1','kb2','zb','db','kc1','kc2','zc','dc','kd1','kd2','zd','dd','ke1','ke2','ze','de','kf1','kf2','zf','df','kg1','kg2','zg','dg','kh1','kh2','zh','dh','ki1','ki2','zi','di','kj1','kj2','zj','dj','kk1','kk2','zk','dk','kl1','kl2','zl','dl','km1','km2','zm','dm','kn1','kn2','zn','dn','ko1','ko2','zo','do','kp1','kp2','zp','dp','kq1','kq2','zq','dq','kr1','kr2','zr','dr', 'phex','phint','Clex','Clint','V'] # external pH, internal pH, external [Cl-], internal [Cl-], membrane V
 GlutWT0_states=["iapo", "iH", "iH2", "oH2", "oH", "oapo", "iCl", "iClH", "iClH2", "oClH2", "oClH", "oCl", "iH2S", "iHS", "oHS", "oH2S", "iClH2S", "iClHS", "oClHS", "oClH2S"]
- 
+
 def GlutWT0_transitionmatrix(k11,k12,z1,d1,k21,k22,z2,d2,k31,k32,z3,d3,k41,k42,z4,d4,k51,k52,z5,d5,k61,k62,z6,d6,k71,k72,z7,d7,k81,k82,z8,d8,k91,k92,z9,d9,ka1,ka2,za,da,kb1,kb2,zb,db,kc1,kc2,zc,dc,kd1,kd2,zd,dd,ke1,ke2,ze,de,kf1,kf2,zf,df,kg1,kg2,zg,dg,kh1,kh2,zh,dh,ki1,ki2,zi,di,kj1,kj2,zj,dj,kk1,kk2,zk,dk,kl1,kl2,zl,dl,km1,km2,zm,dm,kn1,kn2,zn,dn,ko1,ko2,zo,do,kp1,kp2,zp,dp,kq1,kq2,zq,dq,kr1,kr2,zr,dr,
     phex,phint,Clex,Clint,V, # external pH, internal pH, external [Cl-], internal [Cl-], membrane V
     states=["iapo", "iH", "iH2", "oH2", "oH", "oapo", "iCl", "iClH", "iClH2", "oClH2", "oClH", "oCl", "iH2S", "iHS", "oHS", "oH2S", "iClH2S", "iClHS", "oClHS", "oClH2S"]):
